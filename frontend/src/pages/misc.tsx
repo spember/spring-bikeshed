@@ -1,7 +1,13 @@
+import Layout from "./Layout.tsx";
+import {Container} from "@mui/material";
+
 export function Missing() {
     return (
-        <div>
-            <p>We're sorry this page is missing</p>
-        </div>
+        <Layout>
+            <Container>
+                <p>We're sorry this page is missing</p>
+            </Container>
+        </Layout>
+
     )
 }
