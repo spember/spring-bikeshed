@@ -29,8 +29,8 @@ class NavItem {
 
 const Header = () => {
     const navItems = [
-        new NavItem('Search', "search"),
         new NavItem('Home', "/"),
+        new NavItem('Search', "search"),
         new NavItem('About', "/about"),
         new NavItem('Contact', "/contact")
     ];
@@ -52,13 +52,5 @@ const Header = () => {
         </AppBar>
     )
 }
-
-// const Footer = () => {
-//     return (
-//         <div>
-//             <p>Blah blah blah 2024</p>
-//         </div>
-//     )
-// }
 
 export default Layout;
