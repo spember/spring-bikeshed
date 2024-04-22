@@ -1,4 +1,4 @@
-package com.pember.bikeshed.details
+package com.pember.bikeshed.memory
 
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.users.UserDetails

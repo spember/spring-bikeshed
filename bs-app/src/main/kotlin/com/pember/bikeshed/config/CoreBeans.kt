@@ -1,7 +1,7 @@
-package com.pember.bikeshed.app.config
+package com.pember.bikeshed.config
 
 import com.pember.bikeshed.core.users.UserOverviewService
-import com.pember.bikeshed.details.StubUserRepository
+import com.pember.bikeshed.memory.StubUserRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
