@@ -1,24 +1,22 @@
 package com.pember.bikeshed.sql
 
+import com.pember.bikeshed.db.jooq.Tables.EVENT_JOURNAL
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.pember.bikeshed.db.jooq.tables.EventJournal
-import com.pember.bikeshed.db.jooq.tables.EventJournal.EVENT_JOURNAL
 import com.pember.eventsource.EntityId
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
+import com.pember.eventsource.EventRegistry
 import com.pember.eventsource.EventRepository
 import org.jooq.DSLContext
 import org.jooq.JSONB
-import java.sql.Timestamp
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.TimeZone
 
 
 class JooqEventRepository(
-    private val dslContext: DSLContext,
-    private val objectMapper: ObjectMapper
+    private val jooq: DSLContext,
+    private val objectMapper: ObjectMapper,
+    private val eventRegistry: EventRegistry
 ): EventRepository<String> {
 
     /*
@@ -32,9 +30,9 @@ class JooqEventRepository(
      */
 
 
-    override fun <EI : EntityId<String>> persist(envelopes: MutableList<EventEnvelope<EI, Event>>) {
+    override fun <EI : EntityId<String>> persist(envelopes: List<EventEnvelope<EI, Event>>) {
 
-        val stmt = dslContext.insertInto(EVENT_JOURNAL)
+        val stmt = jooq.insertInto(EVENT_JOURNAL)
             .columns(
                 EVENT_JOURNAL.ENTITY_ID,
                 EVENT_JOURNAL.REVISION,
@@ -54,24 +52,36 @@ class JooqEventRepository(
                 OffsetDateTime.ofInstant(envelope.timeObserved, ZoneOffset.UTC),
                 JSONB.jsonb(objectMapper.writeValueAsString(envelope.event))
             )
-
         }
         stmt.execute()
     }
 
-    override fun <EI : EntityId<String>> loadForId(entityId: EI): MutableList<EventEnvelope<EI, Event>> {
-        TODO("Not yet implemented")
+    override fun <EI : EntityId<String>> loadForId(entityId: EI): List<EventEnvelope<EI, Event>> {
+        return jooq.selectFrom(EVENT_JOURNAL)
+            .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
+            .fetch()
+            .map { record ->
+                EventEnvelope(
+                    // because our query used the original id, just slap it back in there
+                    entityId,
+                    record.revision,
+                    record.source,
+                    record.timeOccurred.toInstant(),
+                    record.timeObserved.toInstant(),
+                    objectMapper.readValue(record.data.data(), eventRegistry.getClassForAlias(record.eventType).get())
+                )
+            }.toList()
     }
 
     override fun <EI : EntityId<String>> loadForIdAndRevision(
         entityId: EI,
         revision: Int
-    ): MutableList<EventEnvelope<EI, Event>> {
+    ): List<EventEnvelope<EI, Event>> {
         TODO("Not yet implemented")
     }
 
     override fun <EI : EntityId<String>> countEventsForId(entityId: EI ): Int {
-        return dslContext.selectCount()
+        return jooq.selectCount()
             .from(EVENT_JOURNAL)
             .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
             .fetchOne()?.value1()!!

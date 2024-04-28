@@ -6,7 +6,7 @@ plugins {
 }
 dependencies {
     implementation(project(":bs-core"))
-    implementation(project(":bs-details"))
+    implementation(project(":bs-detail"))
     implementation(project(":eventsource"))
     //	implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
 //	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

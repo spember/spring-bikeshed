@@ -4,6 +4,6 @@ import com.pember.eventsource.EntityId
 
 typealias BaseShedId = EntityId<String>
 
+data class UserId(val value: String): EntityId<String>(value)
 
-data class UserId(val value: String): BaseShedId(value)
-data class BikeId(val value: String): BaseShedId(value)
+data class BikeId(val value: String): EntityId<String>(value)

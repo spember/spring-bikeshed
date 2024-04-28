@@ -10,4 +10,4 @@ rootProject.name = "bikeshed"
 include("eventsource")
 include("bs-core")
 include("bs-app")
-include("bs-details")
+include("bs-detail")

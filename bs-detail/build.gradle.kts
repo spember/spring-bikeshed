@@ -8,11 +8,3 @@ dependencies {
     testImplementation(libs.junit.jupiter)
 
 }
-
-sourceSets {
-    main {
-        java {
-            srcDir("build/generated-src/main/gen")
-        }
-    }
-}

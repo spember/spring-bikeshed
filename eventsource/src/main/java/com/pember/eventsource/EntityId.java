@@ -40,7 +40,7 @@ public abstract class EntityId<T> {
      *
      * @return the id value.
      */
-    public T getValue() {
+    public @Nonnull T getValue() {
         return value;
     }
 

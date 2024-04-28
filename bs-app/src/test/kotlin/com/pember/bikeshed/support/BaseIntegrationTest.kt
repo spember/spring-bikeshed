@@ -7,13 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.DockerComposeContainer
+import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
 import java.time.Duration
 
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BaseIntegrationTest {
 
@@ -26,23 +28,36 @@ class BaseIntegrationTest {
     companion object {
 
         @JvmStatic
-        val environment: DockerComposeContainer<*> = DockerComposeContainer(
-            File("src/test/resources/docker-compose-test.yaml")
-        )
-            .withExposedService("test-db", 5432)
+        val postgresContainer: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16.2-alpine")
+            .withDatabaseName("bikeshed-test")
+            .withUsername("postgres")
+            .withPassword("postgres")
+
+
 
 
         @BeforeAll
         @JvmStatic
         fun beforeAll() {
-            environment.start()
+            postgresContainer.start()
         }
 
         @AfterAll
         @JvmStatic
         fun afterAll() {
-            environment.stop()
+            postgresContainer.stop()
         }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun registerDynamicProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", postgresContainer::getJdbcUrl)
+            registry.add("spring.datasource.username", postgresContainer::getUsername)
+            registry.add("spring.datasource.password", postgresContainer::getPassword)
+            registry.add("spring.flyway.enabled", { true })
+
+        }
+
 
     }
 

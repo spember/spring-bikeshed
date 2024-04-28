@@ -17,7 +17,7 @@ class BikeManagementService(
         val ewe = EntityWithEvents(bike, registerNewBike.source.value)
         ewe.apply(BikeAddedToInventory(registerNewBike.color, registerNewBike.purchasedFrom))
         eventRepository.persist(ewe.uncommittedEvents)
-        log.info("Entered new bike '${registerNewBike.bikeId}' into inventory")
+        log.info("Entered new bike '${registerNewBike.bikeId}' into inventory. It has ${eventRepository.countEventsForId(registerNewBike.bikeId)} events")
     }
 
     fun getBikeById(bikeId: BikeId): Bike? {

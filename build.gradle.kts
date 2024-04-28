@@ -109,7 +109,7 @@ jooq {
 					}
 					target.apply {
 						packageName = "com.pember.bikeshed.db.jooq"
-						directory = "bs-details/build/generated-src/main/gen"  // default (can be omitted)
+						directory = "bs-detail/src/main/java"  // default (can be omitted)
 					}
 					strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
 				}
