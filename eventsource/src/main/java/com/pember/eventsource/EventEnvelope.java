@@ -19,7 +19,7 @@ public class EventEnvelope<I extends EntityId<?>, E extends Event> {
     private final int revision;
     // some key describing where this event originated. Will typically by the email or id of the user that triggered
     // this change
-    private final String source;
+    private final String agent;
     private final Instant timeOccurred;
     private final Instant timeObserved;
 
@@ -30,7 +30,7 @@ public class EventEnvelope<I extends EntityId<?>, E extends Event> {
      *
      * @param entityId id relating to the enveloped event
      * @param revision revision number for which this envelope handles to the entity
-     * @param source the marker for the user or system which is responsible for the change. Must, at minimum, be a user id (or a marker for 'system' if not actually done by a user).
+     * @param agent the marker for the user or system which is responsible for the change. Must, at minimum, be a user id (or a marker for 'system' if not actually done by a user).
      * @param timeOccurred the time that the change or event actually occurred. May be in the past, for example.
      * @param timeObserved the time that the current system received this event or processed the change which caused this event
      * @param event the {@link Event} class
@@ -38,13 +38,13 @@ public class EventEnvelope<I extends EntityId<?>, E extends Event> {
     public EventEnvelope(
             @Nonnull final I entityId,
             final int revision,
-            @Nonnull final String source,
+            @Nonnull final String agent,
             @Nonnull final Instant timeOccurred,
             @Nonnull final Instant timeObserved,
             @Nonnull final E event) {
         this.entityId = entityId;
         this.revision = revision;
-        this.source = source;
+        this.agent = agent;
         this.timeOccurred = timeOccurred;
         this.timeObserved = timeObserved;
         this.event = event;
@@ -70,8 +70,8 @@ public class EventEnvelope<I extends EntityId<?>, E extends Event> {
      *
      * @return a string
      */
-    public String getSource() {
-        return source;
+    public String getAgent() {
+        return agent;
     }
 
     /**

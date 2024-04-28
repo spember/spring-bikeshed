@@ -31,6 +31,7 @@ public abstract class EntityId<T> {
      * @param value the value, T, that our class will wrap.
      */
     public EntityId(@Nonnull final T value) {
+        Objects.requireNonNull(value, "EntityId value cannot be null");
         this.value = value;
     }
 

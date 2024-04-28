@@ -8,7 +8,8 @@ import java.util.List;
  * has the same underlying value - uuid, string, int, etc.
  *
  * @param <T> The underlying type of the {@link EntityId}s supported by the implementation. This means that if you have
- *            multiple underyling types, you'll need eventRepositories for each type.
+ *            multiple underyling types, you'll need eventRepositories for each type - and potentially different event
+ *            journals.
  */
 public interface EventRepository<T> {
 

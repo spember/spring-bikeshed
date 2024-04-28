@@ -1,0 +1,58 @@
+[versions]
+aws-sdk = "2.25.29"
+flyway-plugin = "10.11.1"
+jackson-databind = "2.17.0"
+jackson-kotlin = "2.17.0"
+jooq = "3.19.7"
+junit-jupiter = "5.10.2"
+kotlin-plugins = "1.9.23"
+slf4j = "2.0.10"
+spring-plugin = "3.2.4"
+stavvy-messaging-lib = "0.3.0"
+testcontainers = "1.19.7"
+
+
+[plugins]
+jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref="jooq" }
+flyway = { id = "org.flywaydb.flyway", version.ref="flyway-plugin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-plugins" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin-plugins" }
+spring = { id = "org.springframework.boot", version.ref="spring-plugin"}
+
+
+[libraries]
+aws-bom = { module = "software.amazon.awssdk:bom", version.ref="aws-sdk"}
+aws-sqs = { module = "software.amazon.awssdk:sqs"}
+aws-sns = { module = "software.amazon.awssdk:sns"}
+
+flyway = { module = "org.flywaydb:flyway-core" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson-databind" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson-kotlin" }
+jooq = {module="org.jooq:jooq", version.ref="jooq"}
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+postgres-driver = { module = "org.postgresql:postgresql", version="42.7.2" }
+
+reflections = {module = "org.reflections:reflections", version="0.10.2"}
+
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+spring-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
+spring-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+#testcontainers-java-aws = {module="com.amazonaws:aws-java-sdk-core", version="1.12.402"}
+testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref="testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter" }
+testcontainers-postgres = { module = "org.testcontainers:postgresql" }
+#testcontainers-localstack = { module = "org.testcontainers:localstack" }
+
+
+[bundles]
+jooq = ["jooq", "spring-starter-jooq"]
+jackson = ["jackson-databind", "jackson-kotlin"]
+kotlin = ["kotlin-reflect", "kotlin-stdlib"]
+aws-clients = ["aws-sns", "aws-sqs"]
+testcontainers-images = ["testcontainers-junit-jupiter", "testcontainers-postgres"]
+

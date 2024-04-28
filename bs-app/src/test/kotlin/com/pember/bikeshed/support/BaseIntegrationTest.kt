@@ -30,7 +30,6 @@ class BaseIntegrationTest {
             File("src/test/resources/docker-compose-test.yaml")
         )
             .withExposedService("test-db", 5432)
-            .withExposedService("test-localstack", 4566)
 
 
         @BeforeAll

@@ -1,0 +1,7 @@
+.menu-item {
+    border: 2px solid #ccc;
+    gap: 1em;
+    .menu-img {
+        width: 33%;
+    }
+}

@@ -1,4 +1,18 @@
+plugins {
+    id("java")
+}
 dependencies {
     implementation(project(":bs-core"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    implementation(libs.jooq)
+    implementation(libs.bundles.jackson)
+    testImplementation(libs.junit.jupiter)
+
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("build/generated-src/main/gen")
+        }
+    }
 }

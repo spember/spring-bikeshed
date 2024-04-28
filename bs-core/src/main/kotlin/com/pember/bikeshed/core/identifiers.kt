@@ -1,10 +1,9 @@
 package com.pember.bikeshed.core
 
-class identifiers {
-}
+import com.pember.eventsource.EntityId
 
-data class UserId(val value: String) {
-    init {
-        require(value.isNotBlank()) { "User ID must not be blank" }
-    }
-}
+typealias BaseShedId = EntityId<String>
+
+
+data class UserId(val value: String): BaseShedId(value)
+data class BikeId(val value: String): BaseShedId(value)

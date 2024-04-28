@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5532/bikeshed?loggerLevel=OFF
+    username: postgres
+    password: postgres
