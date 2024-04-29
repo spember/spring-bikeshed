@@ -47,7 +47,7 @@ class JooqEventRepository(
                 envelope.entityId.value,
                 envelope.revision,
                 envelope.agent.toString(),
-                envelope.event.javaClass.simpleName,
+                eventRegistry.getAliasForClass(envelope.event::class.java).get(),
                 OffsetDateTime.ofInstant(envelope.timeOccurred, ZoneOffset.UTC),
                 OffsetDateTime.ofInstant(envelope.timeObserved, ZoneOffset.UTC),
                 JSONB.jsonb(objectMapper.writeValueAsString(envelope.event))

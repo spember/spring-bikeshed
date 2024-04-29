@@ -10,6 +10,11 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod.GET
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.RequestEntity
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BasicBikeControllerTest: BaseIntegrationTest() {
@@ -19,7 +24,11 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
 
     @Test
     fun `Looking up a bike by bad Id should be a 404`() {
-        val response = restTemplate.getForEntity("http://localhost:$serverPort/bikes/123", String::class.java)
+
+        val headers = HttpHeaders()
+        headers.contentType = APPLICATION_JSON
+        val entity = HttpEntity<String>(headers)
+        val response = restTemplate.exchange("http://localhost:$serverPort/bike/123", GET, entity, String::class.java)
         assertEquals(404, response.statusCode.value())
         assertEquals(5,5)
     }
@@ -32,7 +41,11 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
             UserId("stu"), bikeId, BikeColor.RED, "Bike Distributors, Co.")
         )
 
-        val response = restTemplate.getForEntity("http://localhost:$serverPort/bikes/${bikeId.value}", String::class.java)
+        val headers = HttpHeaders()
+        headers.contentType = APPLICATION_JSON
+        val entity = HttpEntity<String>(headers)
+        val response = restTemplate.exchange("http://localhost:$serverPort/bike/${bikeId.value}", GET, entity, String::class.java)
+//        val response = restTemplate.getForEntity("http://localhost:$serverPort/bike/${bikeId.value}", String::class.java)
         println(response.body)
         assertEquals(200, response.statusCode.value())
 
