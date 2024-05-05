@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class EntityWithEvents<EI extends EntityId<?>, EN extends DomainEntity<EI>> {
 
     private final EN entity;
-    private final String source;
+    private final String agent;
     // reflects when an event has occurred, typically outside of this current system.
     private final Instant timeOccurred;
 
@@ -45,11 +45,11 @@ public class EntityWithEvents<EI extends EntityId<?>, EN extends DomainEntity<EI
      * Constructor which assumes TimeOccurred is now.
      *
      * @param entity the {@link DomainEntity} to be tracked
-     * @param source the 'source' that is responsible for this change
+     * @param agent the id of the person or system that is responsible for this change
      */
-    public EntityWithEvents(@Nonnull EN entity, @Nonnull String source) {
+    public EntityWithEvents(@Nonnull EN entity, @Nonnull String agent) {
         this.entity = entity;
-        this.source = source;
+        this.agent = agent;
         this.timeOccurred = Instant.now();
     }
 
@@ -57,12 +57,12 @@ public class EntityWithEvents<EI extends EntityId<?>, EN extends DomainEntity<EI
      * Constructor for when TimeOccurred is not now. Useful for when an event is received by your system in the future.
      *
      * @param entity the {@link DomainEntity} to be tracked
-     * @param source the 'source' that is responsible for this change
+     * @param agent the 'source' that is responsible for this change
      * @param timeOccurred the Instant or time when this event occurred, if not now.
      */
-    public EntityWithEvents(@Nonnull EN entity, @Nonnull String source, @Nonnull Instant timeOccurred) {
+    public EntityWithEvents(@Nonnull EN entity, @Nonnull String agent, @Nonnull Instant timeOccurred) {
         this.entity = entity;
-        this.source = source;
+        this.agent = agent;
         this.timeOccurred = timeOccurred;
     }
 
@@ -99,7 +99,7 @@ public class EntityWithEvents<EI extends EntityId<?>, EN extends DomainEntity<EI
             var envelope = new EventEnvelope<>(
                     this.entity.getId(),
                     this.getNextRevision(),
-                    this.source,
+                    this.agent,
                     this.timeOccurred,
                     Instant.now(), // time observed is always .now(),
                     event

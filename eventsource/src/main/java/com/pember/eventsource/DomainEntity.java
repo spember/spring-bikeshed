@@ -25,7 +25,7 @@ public abstract class DomainEntity<I extends EntityId<?>> {
 
     private final I id;
     private int revision = 0;
-    private boolean active = true;
+    protected boolean active = true;
 
 
     /**
@@ -112,7 +112,7 @@ public abstract class DomainEntity<I extends EntityId<?>> {
      * @param envelope the {@link EventEnvelope} our domain entity is reacting to
      * @param eventClass the {@link Event } class we're checking against
      * @param handler if the eventClass matches the event contained in the envelope, this code will be executed
-     * @return a boolean for whether or not the event was handled this time
+     * @return a boolean for whether the event was handled this time
      * @param <E> Generic for the Event in the class and handler, ensuring type safety between the two
      */
     @SuppressWarnings("unchecked")

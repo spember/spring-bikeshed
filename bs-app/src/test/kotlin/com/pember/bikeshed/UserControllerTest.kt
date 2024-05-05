@@ -8,8 +8,6 @@ class UserControllerTest: BaseIntegrationTest() {
 
     @Test
     fun testThings() {
-        println("In tests!")
-
         assertEquals(1, 1)
     }
 }

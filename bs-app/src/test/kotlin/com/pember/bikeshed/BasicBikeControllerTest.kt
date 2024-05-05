@@ -14,7 +14,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.http.RequestEntity
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BasicBikeControllerTest: BaseIntegrationTest() {
@@ -34,7 +33,7 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
     }
 
     @Test
-    fun `Looking a valid bike should return details` () {
+    fun `Looking up a valid bike should return details` () {
         val bikeId = BikeId("AZ-123")
 
         bikeManagementService.registerNewBike(RegisterNewBike(
@@ -45,7 +44,6 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
         headers.contentType = APPLICATION_JSON
         val entity = HttpEntity<String>(headers)
         val response = restTemplate.exchange("http://localhost:$serverPort/bike/${bikeId.value}", GET, entity, String::class.java)
-//        val response = restTemplate.getForEntity("http://localhost:$serverPort/bike/${bikeId.value}", String::class.java)
         println(response.body)
         assertEquals(200, response.statusCode.value())
 

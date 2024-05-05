@@ -3,6 +3,7 @@ package com.pember.bikeshed.support
 import org.junit.ClassRule
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -25,6 +26,11 @@ class BaseIntegrationTest {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
 
+    @BeforeEach
+    fun beforeEach() {
+        println("Before each -> postgres port is ${postgresContainer.getJdbcUrl()}")
+    }
+
     companion object {
 
         @JvmStatic
@@ -39,13 +45,15 @@ class BaseIntegrationTest {
         @BeforeAll
         @JvmStatic
         fun beforeAll() {
+            println("Starting postgres container")
             postgresContainer.start()
+            println("Container has port ${postgresContainer.getJdbcUrl()}")
         }
 
         @AfterAll
         @JvmStatic
         fun afterAll() {
-            postgresContainer.stop()
+//            postgresContainer.stop()
         }
 
         @DynamicPropertySource

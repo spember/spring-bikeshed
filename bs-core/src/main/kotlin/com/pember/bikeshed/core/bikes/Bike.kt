@@ -17,13 +17,37 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
     var origin: String = ""
         private set
 
+    var available: Boolean = true
+        private set
+
+    var timesRepaired: Int = 0
+        private set
+
     override fun reactToIncomingEvent(eventEnvelope: EventEnvelope<BikeId, out Event>): Boolean {
-        Foo()
         return when (val event = eventEnvelope.event) {
+            /*
+            An event is essentially a 'fancy setter' for our Entities.
+
+            Our Entities are mutable, our Events are not.
+             */
             is BikeAddedToInventory -> {
                 description = "A ${event.color} bike purchased from ${event.fromSource}"
                 bikeColor = event.color
                 origin = event.fromSource
+                true
+            }
+            is HeldForRepairs -> {
+                available = false
+                true
+            }
+            is RepairsCompleted -> {
+                available = true
+                timesRepaired++
+                true
+            }
+            is BikeRetired -> {
+                available = false
+                active = false
                 true
             }
             else -> false
