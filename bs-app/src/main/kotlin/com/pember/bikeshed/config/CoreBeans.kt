@@ -2,6 +2,7 @@ package com.pember.bikeshed.config
 
 import com.pember.bikedshed.memory.StubUserRepository
 import com.pember.bikeshed.core.bikes.BikeManagementService
+import com.pember.bikeshed.core.reservations.ReservationService
 import com.pember.bikeshed.core.users.UserOverviewService
 import com.pember.eventsource.EventRegistry
 import com.pember.eventsource.EventRepository
@@ -21,6 +22,11 @@ class CoreBeans {
     fun provideBikeManagementService(dslContext: DSLContext, eventRepository: EventRepository<String>): BikeManagementService {
         println(dslContext.selectOne())
         return BikeManagementService(eventRepository)
+    }
+
+    @Bean
+    fun provideReservationService(eventRepository: EventRepository<String>): ReservationService {
+        return ReservationService(eventRepository)
     }
 
     @Bean

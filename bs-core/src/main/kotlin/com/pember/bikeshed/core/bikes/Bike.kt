@@ -36,6 +36,7 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
                 origin = event.fromSource
                 true
             }
+
             is HeldForRepairs -> {
                 available = false
                 true

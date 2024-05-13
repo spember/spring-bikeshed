@@ -56,6 +56,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         assertEquals(1, bike.timesRepaired)
     }
 
+    @Test
     fun `Retiring a bike removes it from inventory`() {
         // Given
         val bikeId = BikeId("brl-2")
