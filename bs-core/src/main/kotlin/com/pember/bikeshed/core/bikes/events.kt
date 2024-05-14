@@ -2,6 +2,7 @@ package com.pember.bikeshed.core.bikes
 
 import com.pember.bikeshed.core.UserId
 import com.pember.eventsource.Event
+import com.pember.eventsource.EventAlias
 import java.time.Instant
 
 /*

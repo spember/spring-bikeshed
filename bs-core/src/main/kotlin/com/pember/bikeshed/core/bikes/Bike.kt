@@ -5,6 +5,7 @@ import com.pember.bikeshed.core.Foo
 import com.pember.eventsource.DomainEntity
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
+import com.pember.eventsource.errors.UnknownEventException
 
 class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
 
@@ -23,8 +24,8 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
     var timesRepaired: Int = 0
         private set
 
-    override fun reactToIncomingEvent(eventEnvelope: EventEnvelope<BikeId, out Event>): Boolean {
-        return when (val event = eventEnvelope.event) {
+    override fun receiveEvent(eventEnvelope: EventEnvelope<BikeId, out Event>) {
+        when (val event = eventEnvelope.event) {
             /*
             An event is essentially a 'fancy setter' for our Entities.
 
@@ -34,24 +35,24 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
                 description = "A ${event.color} bike purchased from ${event.fromSource}"
                 bikeColor = event.color
                 origin = event.fromSource
-                true
             }
 
             is HeldForRepairs -> {
                 available = false
-                true
+                // Put some default reason for repair
+                // lookup some default price that was historically what we used before v2 event
             }
+
             is RepairsCompleted -> {
                 available = true
                 timesRepaired++
-                true
+
             }
             is BikeRetired -> {
                 available = false
                 active = false
-                true
             }
-            else -> false
+            else -> throw UnknownEventException(event)
         }
     }
 }

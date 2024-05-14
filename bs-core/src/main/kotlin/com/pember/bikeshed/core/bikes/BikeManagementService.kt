@@ -3,12 +3,14 @@ package com.pember.bikeshed.core.bikes
 import com.pember.bikeshed.core.BikeId
 import com.pember.bikeshed.core.RegisterNewBike
 import com.pember.bikeshed.core.UserId
+import com.pember.eventsource.EntityLoader
 import com.pember.eventsource.EntityWithEvents
 import com.pember.eventsource.EventRepository
 import org.slf4j.LoggerFactory
 
 class BikeManagementService(
-    private val eventRepository: EventRepository<String>
+    private val eventRepository: EventRepository<String>,
+    private val entityLoader: EntityLoader<String>
 ) {
     // if time, break this up into 'Use Cases'
 
@@ -55,10 +57,7 @@ class BikeManagementService(
 
 
     fun getBikeById(bikeId: BikeId): Bike? {
-        val bike = Bike(bikeId)
-        eventRepository.loadForId(bikeId).forEach { envelope ->
-            bike.apply(envelope)
-        }
+        val bike = entityLoader.loadCurrentState(Bike(bikeId))
 
         return if (bike.revision == 0) {
             null

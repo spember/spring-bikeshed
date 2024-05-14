@@ -6,6 +6,7 @@ import com.pember.bikeshed.core.UserId
 import com.pember.eventsource.DomainEntity
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
+import com.pember.eventsource.errors.UnknownEventException
 import java.time.Instant
 
 /**
@@ -37,21 +38,22 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
 
     private val bikesRented = mutableListOf<BikeId>()
 
+    fun getClaimedBikes(): List<BikeId> = bikesRented.toList()
 
-    override fun reactToIncomingEvent(eventEnvelope: EventEnvelope<ReservationId, out Event>): Boolean {
+    override fun receiveEvent(eventEnvelope: EventEnvelope<ReservationId, out Event>) {
         when(val event = eventEnvelope.event) {
-            is ReservationOpened -> {
-                customer = event.customerId
-                scheduledStartTime = event.expectedStartTime
-                expectedEndTime = event.expectedEndTime
-                status = Status.PENDING
-                return true
-            }
-            else -> return false
+            is ReservationOpened -> handle(event)
+            else -> throw UnknownEventException(event)
         }
     }
 
-    fun getClaimedBikes(): List<BikeId> = bikesRented.toList()
+    private fun handle(event: ReservationOpened) {
+        customer = event.customerId
+        scheduledStartTime = event.expectedStartTime
+        expectedEndTime = event.expectedEndTime
+        status = Status.PENDING
+    }
+
 
     enum class Status {
         PENDING,

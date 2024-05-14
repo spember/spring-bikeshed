@@ -1,7 +1,7 @@
 create table event_journal(
       entity_id varchar(32) not null, -- uuid is usual great
       revision int not null default 0,
-      source text not null,
+      agent text not null,
       event_type varchar(256) not null,
       time_occurred timestamp with time zone not null,
       time_observed timestamp with time zone not null,

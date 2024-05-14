@@ -6,7 +6,7 @@ import java.time.Instant
 open class Command(val source: UserId)
 
 class RegisterNewBike(
-    val employee: UserId,
+    employee: UserId,
     val bikeId: BikeId,
     val color: BikeColor,
     val purchasedFrom: String

@@ -31,8 +31,7 @@ public interface EventRepository<T> {
      * @return a List of Event Envelopes
      */
     <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForId(@Nonnull final EI entityId);
-    // todo: we're going to want to change this method signature to avoid potentially massive lists here.
-    // todo: update these load operations to require a Supplier so that we can stream events to the Supplier in batches
+    // todo: you'll want to change these load operations to require a Supplier so that we can stream events to the Supplier in batches
 
     /**
      * For most day-to-day use cases, {@link #loadForId(EntityId) loadForId()} will be used most often, as it should

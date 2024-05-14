@@ -80,9 +80,9 @@ public abstract class DomainEntity<I extends EntityId<?>> {
             throw new EventOutOfOrderException(this.getRevision()+1, eventEnvelope.getRevision());
         }
 
-        if (!reactToIncomingEvent(eventEnvelope)) {
-            throw new UnknownEventException(eventEnvelope.getEvent());
-        }
+        // alternatively, we could throw an exception if the event is not known but we'd need
+        // the events to signal upwards
+        receiveEvent(eventEnvelope);
 
         this.revision = eventEnvelope.getRevision();
     }
@@ -138,6 +138,6 @@ public abstract class DomainEntity<I extends EntityId<?>> {
      * @param eventEnvelope the event plus wrapper (The {@link EventEnvelope}
      * @return a boolean for whether the event was handled or not
      */
-    protected abstract boolean reactToIncomingEvent(@Nonnull EventEnvelope<I, ? extends Event> eventEnvelope);
+    protected abstract void receiveEvent(@Nonnull EventEnvelope<I, ? extends Event> eventEnvelope) throws UnknownEventException;
 
 }

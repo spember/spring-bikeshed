@@ -31,12 +31,11 @@ class JooqEventRepository(
 
 
     override fun <EI : EntityId<String>> persist(envelopes: List<EventEnvelope<EI, Event>>) {
-
         val stmt = jooq.insertInto(EVENT_JOURNAL)
             .columns(
                 EVENT_JOURNAL.ENTITY_ID,
                 EVENT_JOURNAL.REVISION,
-                EVENT_JOURNAL.SOURCE,
+                EVENT_JOURNAL.AGENT,
                 EVENT_JOURNAL.EVENT_TYPE,
                 EVENT_JOURNAL.TIME_OCCURRED,
                 EVENT_JOURNAL.TIME_OBSERVED,
@@ -57,6 +56,7 @@ class JooqEventRepository(
     }
 
     override fun <EI : EntityId<String>> loadForId(entityId: EI): List<EventEnvelope<EI, Event>> {
+        // first find most recent snapshot for entity
         return jooq.selectFrom(EVENT_JOURNAL)
             .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
             .fetch()
@@ -65,7 +65,7 @@ class JooqEventRepository(
                     // because our query used the original id, just slap it back in there
                     entityId,
                     record.revision,
-                    record.source,
+                    record.agent,
                     record.timeOccurred.toInstant(),
                     record.timeObserved.toInstant(),
                     objectMapper.readValue(record.data.data(), eventRegistry.getClassForAlias(record.eventType).get())
