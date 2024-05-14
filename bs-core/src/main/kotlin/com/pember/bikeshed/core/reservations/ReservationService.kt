@@ -3,6 +3,7 @@ package com.pember.bikeshed.core.reservations
 import com.pember.bikeshed.core.OpenNewReservation
 import com.pember.bikeshed.core.ReservationId
 import com.pember.bikeshed.core.UserId
+import com.pember.bikeshed.core.common.EntityStore
 import com.pember.eventsource.EntityWithEvents
 import com.pember.eventsource.EventRepository
 import org.slf4j.LoggerFactory
@@ -11,7 +12,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 class ReservationService(
-    private val reservationPersistenceOrchestrator: ReservationPersistenceOrchestrator
+    private val entityStore: EntityStore<*>,
 ) {
 
     fun handle(command: OpenNewReservation): ReservationId {
@@ -23,7 +24,7 @@ class ReservationService(
             command.expectedStartTime,
             command.expectedEndTime))
 
-        reservationPersistenceOrchestrator.persistNewReservation(ewe)
+        entityStore.persist(ewe)
         log.info("opened new reservation for customer ${command.customerId.value}")
         return ewe.entity.resId
     }

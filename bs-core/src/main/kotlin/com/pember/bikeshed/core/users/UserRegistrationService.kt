@@ -1,6 +1,7 @@
 package com.pember.bikeshed.core.users
 
 import com.pember.bikeshed.core.UserId
+import com.pember.bikeshed.core.common.EntityStore
 import com.pember.eventsource.EntityLoader
 import com.pember.eventsource.EntityWithEvents
 import com.pember.eventsource.EventRepository
@@ -10,7 +11,7 @@ class UserRegistrationService(
     private val eventRepository: EventRepository<String>,
     private val entityLoader: EntityLoader<String>,
     private val userConstraintsRepository: UserConstraintsRepository,
-    private val userPersistenceOrchestrator: UserPersistenceOrchestrator
+    private val entityStore: EntityStore<*>
 ) {
 
     /**
@@ -36,7 +37,8 @@ class UserRegistrationService(
                 UserCreated(name, email),
                 RoleChanged(isEmployee)
             )
-        userPersistenceOrchestrator.storeNewUser(ewe)
+
+        entityStore.persist(ewe)
         return userId
     }
 
