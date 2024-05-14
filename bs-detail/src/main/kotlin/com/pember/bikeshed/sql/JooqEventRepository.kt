@@ -7,6 +7,7 @@ import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
 import com.pember.eventsource.EventRegistry
 import com.pember.eventsource.EventRepository
+import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
 import java.time.OffsetDateTime
@@ -85,5 +86,9 @@ class JooqEventRepository(
             .from(EVENT_JOURNAL)
             .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
             .fetchOne()?.value1()!!
+    }
+
+    fun withTx(tx: Configuration): JooqEventRepository {
+        return JooqEventRepository(tx.dsl(), objectMapper, eventRegistry)
     }
 }

@@ -7,7 +7,7 @@ package com.pember.eventsource;
  */
 public class EntityLoader<T> {
 
-    private EventRepository<T> eventRepository;
+    private final EventRepository<T> eventRepository;
 
     public EntityLoader(EventRepository<T> eventRepository) {
         this.eventRepository = eventRepository;

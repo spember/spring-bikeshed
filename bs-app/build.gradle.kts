@@ -23,3 +23,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(libs.bundles.testcontainers.images)
 }
+
+// allow for command line usage of flyway (database migrations). Flyway can also be configured to run on app startup
+flyway {
+    url = "jdbc:postgresql://localhost:5532/bikeshed"
+    user = "postgres"
+    password = "postgres"
+    driver = "org.postgresql.Driver"
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
+    schemas = arrayOf("public")
+
+}

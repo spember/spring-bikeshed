@@ -41,8 +41,19 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
     fun getClaimedBikes(): List<BikeId> = bikesRented.toList()
 
     override fun receiveEvent(eventEnvelope: EventEnvelope<ReservationId, out Event>) {
+        /*
+        In other entities we might do large blocks for each of these event handlers, but in this case we're
+        choosing to use "fancy private setters" to make this block more succinct. This is a stylistic choice.
+         */
         when(val event = eventEnvelope.event) {
             is ReservationOpened -> handle(event)
+            is BikesAddedToReservation -> handle(event)
+            is BikesRemovedFromReservation -> handle(event)
+            is ReservationBegun -> handle(event)
+            is ReservationCompleted -> handle(event)
+            // nothing wrong with all handing the full envelope to get access to time
+            is ReservationCancelled -> handle(event, eventEnvelope)
+
             else -> throw UnknownEventException(event)
         }
     }
@@ -54,6 +65,28 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
         status = Status.PENDING
     }
 
+    private fun handle(event: BikesAddedToReservation){
+        this.bikesRented.addAll(event.bikeIds)
+    }
+
+    private fun handle(event: BikesRemovedFromReservation){
+        this.bikesRented.removeAll(event.bikeIds)
+    }
+
+    private fun handle(event: ReservationBegun) {
+        startTime = event.actualStartTime
+        status = Status.ACTIVE
+    }
+
+    private fun handle(event: ReservationCompleted) {
+        endTime = event.actualEndTime
+        status = Status.COMPLETED
+    }
+
+    private fun handle(event: ReservationCancelled, eventEnvelope: EventEnvelope<ReservationId, out Event>) {
+        status = Status.CANCELLED
+        endTime = eventEnvelope.timeOccurred
+    }
 
     enum class Status {
         PENDING,

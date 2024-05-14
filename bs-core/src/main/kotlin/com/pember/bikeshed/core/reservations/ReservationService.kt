@@ -10,7 +10,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class ReservationService(private val eventRepository: EventRepository<String>) {
+class ReservationService(
+    private val reservationPersistenceOrchestrator: ReservationPersistenceOrchestrator
+) {
 
     fun handle(command: OpenNewReservation): ReservationId {
         // does customer have a currently open reservation? Does it matter?
@@ -20,12 +22,12 @@ class ReservationService(private val eventRepository: EventRepository<String>) {
             command.customerId,
             command.expectedStartTime,
             command.expectedEndTime))
-        
-        
-        eventRepository.persist(ewe.uncommittedEvents)
+
+        reservationPersistenceOrchestrator.persistNewReservation(ewe)
         log.info("opened new reservation for customer ${command.customerId.value}")
         return ewe.entity.resId
     }
+
 
     private fun generateResId(customerId: UserId): ReservationId {
         // generate a reservation id based on the current time and the customer Id

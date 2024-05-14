@@ -12,6 +12,8 @@ interface UserConstraintsRepository {
 
     fun updateUserConstraints(userId:UserId, updatedEmail: String, isEmployee: Boolean)
 
+    fun updateUserRole(userId: UserId, isEmployee: Boolean)
+
     fun getCurrentEmployeeCount(): Int
 
     fun getCustomerCount(): Int

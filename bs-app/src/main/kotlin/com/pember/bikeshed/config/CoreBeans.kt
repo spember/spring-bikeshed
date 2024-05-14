@@ -3,11 +3,16 @@ package com.pember.bikeshed.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.pember.bikedshed.memory.StubUserRepository
 import com.pember.bikeshed.core.bikes.BikeManagementService
+import com.pember.bikeshed.core.projections.ProjectionOrchestrator
+import com.pember.bikeshed.core.reservations.ReservationPersistenceOrchestrator
 import com.pember.bikeshed.core.reservations.ReservationService
 import com.pember.bikeshed.core.users.UserConstraintsRepository
 import com.pember.bikeshed.core.users.UserOverviewService
 import com.pember.bikeshed.core.users.UserPersistenceOrchestrator
 import com.pember.bikeshed.core.users.UserRegistrationService
+import com.pember.bikeshed.sql.JooqEventRepository
+import com.pember.bikeshed.sql.JooqProjectionOrchestrator
+import com.pember.bikeshed.sql.JooqReservationPersistenceOrchestrator
 import com.pember.bikeshed.sql.JooqUserConstraintsRepository
 import com.pember.bikeshed.sql.JooqUserPersistenceOrchestrator
 import com.pember.eventsource.EntityLoader
@@ -34,20 +39,39 @@ class CoreBeans {
         return BikeManagementService(eventRepository, entityLoader)
     }
 
+
+
     @Bean
-    fun provideReservationService(eventRepository: EventRepository<String>): ReservationService {
-        return ReservationService(eventRepository)
+    fun provideReservationPersistenceOrchestrator(
+        dslContext: DSLContext,
+        eventRepository: EventRepository<String>
+    ): ReservationPersistenceOrchestrator {
+        return JooqReservationPersistenceOrchestrator(dslContext, eventRepository as JooqEventRepository)
     }
 
+
+    @Bean
+    fun provideReservationService(reservationPersistenceOrchestrator: ReservationPersistenceOrchestrator): ReservationService {
+        return ReservationService(reservationPersistenceOrchestrator)
+    }
 
 
     @Bean
     fun provideUserPersistenceOrchestrator(
         dslContext: DSLContext,
-        eventRegistry: EventRegistry,
-        objectMapper: ObjectMapper
+        eventRepository: EventRepository<String>,
+        projectionOrchestrator: ProjectionOrchestrator<*>
     ): UserPersistenceOrchestrator {
-        return JooqUserPersistenceOrchestrator(dslContext, eventRegistry, ObjectMapper())
+        return JooqUserPersistenceOrchestrator(
+            dslContext,
+            eventRepository as JooqEventRepository,
+            projectionOrchestrator as JooqProjectionOrchestrator
+        )
+    }
+
+    @Bean
+    fun provideProjectionOrchestrator(): ProjectionOrchestrator<*> {
+        return JooqProjectionOrchestrator()
     }
 
     @Bean

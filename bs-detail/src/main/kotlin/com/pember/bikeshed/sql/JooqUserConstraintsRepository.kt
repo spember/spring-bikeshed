@@ -2,7 +2,6 @@ package com.pember.bikeshed.sql
 
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.users.UserConstraintsRepository
-import com.pember.bikeshed.db.jooq.tables.UserConstraints
 import com.pember.bikeshed.db.jooq.tables.UserConstraints.USER_CONSTRAINTS
 import org.jooq.DSLContext
 
@@ -28,6 +27,13 @@ class JooqUserConstraintsRepository(private val jooq: DSLContext): UserConstrain
                 updatedEmail,
                 isEmployee
             )
+            .execute()
+    }
+
+    override fun updateUserRole(userId: UserId, isEmployee: Boolean) {
+        jooq.update(USER_CONSTRAINTS)
+            .set(USER_CONSTRAINTS.IS_EMPLOYEE, isEmployee)
+            .where(USER_CONSTRAINTS.USER_ID.eq(userId.value))
             .execute()
     }
 
