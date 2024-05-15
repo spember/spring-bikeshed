@@ -13,6 +13,7 @@ class JooqUserConstraintsRepository(private val jooq: DSLContext): UserConstrain
     }
 
     override fun updateUserConstraints(userId: UserId, updatedEmail: String, isEmployee: Boolean) {
+        // todo: add revision here, we don't want to update old user constraints
         jooq.deleteFrom(USER_CONSTRAINTS)
             .where(USER_CONSTRAINTS.USER_ID.eq(userId.value))
             .execute()

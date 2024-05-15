@@ -2,14 +2,10 @@ package com.pember.bikeshed.core.users
 
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.common.EntityStore
-import com.pember.eventsource.EntityLoader
 import com.pember.eventsource.EntityWithEvents
-import com.pember.eventsource.EventRepository
 import org.slf4j.LoggerFactory
 
 class UserRegistrationService(
-    private val eventRepository: EventRepository<String>,
-    private val entityLoader: EntityLoader<String>,
     private val userConstraintsRepository: UserConstraintsRepository,
     private val entityStore: EntityStore<*>
 ) {

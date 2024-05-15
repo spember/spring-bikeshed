@@ -7,6 +7,8 @@ import com.pember.bikeshed.core.bikes.BikeColor
 import com.pember.bikeshed.core.bikes.BikeManagementService
 import com.pember.bikeshed.support.BaseIntegrationTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,13 +21,13 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
     @Autowired
     lateinit var bikeManagementService: BikeManagementService
 
-
-
     @Test
     fun `Cannot repair a Bike that doesn't exist`() {
         // Given
         val bikeId = BikeId("fake-bike")
         val user = UserId("stu")
+
+        assertTrue(bikeManagementService.getAvailableBikes().isEmpty())
 
         // When
         assertThrows<IllegalArgumentException> {
@@ -44,7 +46,10 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
             RegisterNewBike(user, bikeId, BikeColor.RED, "Bike Distributors, Co.")
         )
 
+        assertTrue(bikeManagementService.getAvailableBikes().contains(bikeId))
+
         bikeManagementService.initiateRepairs(bikeId, user, "Flat tire")
+        assertFalse(bikeManagementService.getAvailableBikes().contains(bikeId))
 
         var bike = bikeManagementService.getBikeById(bikeId)!!
         assertEquals(false, bike.available)
@@ -54,6 +59,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         bike = bikeManagementService.getBikeById(bikeId)!!
         assertEquals(true, bike.available)
         assertEquals(1, bike.timesRepaired)
+        assertTrue(bikeManagementService.getAvailableBikes().contains(bikeId))
     }
 
     @Test

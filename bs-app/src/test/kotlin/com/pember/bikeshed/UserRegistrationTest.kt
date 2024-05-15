@@ -1,10 +1,10 @@
 package com.pember.bikeshed
 
 import com.pember.bikeshed.core.UserId
+import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.users.User
 import com.pember.bikeshed.core.users.UserRegistrationService
 import com.pember.bikeshed.support.BaseIntegrationTest
-import com.pember.eventsource.EntityLoader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -19,7 +19,7 @@ class UserRegistrationTest: BaseIntegrationTest() {
     private lateinit var userRegistrationService: UserRegistrationService
 
     @Autowired
-    private lateinit var entityLoader: EntityLoader<String>
+    private lateinit var entityStore: EntityStore<*>
 
     @Test
     fun `registering a new user should work great` () {
@@ -27,7 +27,7 @@ class UserRegistrationTest: BaseIntegrationTest() {
         val id = userRegistrationService.registerNewUser("Stu Nichols", "stu@bikeshed.com", true, UserId("system"))
         assertNotNull(id)
 
-        val user = entityLoader.loadCurrentState(User(id))
+        val user = entityStore.loadCurrentState(User(id))
         assertEquals(id, user.id)
         assertEquals("Stu Nichols", user.name)
         assertEquals(true, user.isEmployee)
@@ -43,11 +43,11 @@ class UserRegistrationTest: BaseIntegrationTest() {
             userRegistrationService.registerNewUser("Joan Smith", "janesmith@testmail.com", false, bossId)
         }
 
-        val boss = entityLoader.loadCurrentState(User(bossId))
+        val boss = entityStore.loadCurrentState(User(bossId))
         assertEquals(boss.name, "Boss Sam")
         assertTrue(boss.isEmployee)
 
-        val jane = entityLoader.loadCurrentState(User(customerId))
+        val jane = entityStore.loadCurrentState(User(customerId))
         assertEquals("Jane Smith", jane.name)
 
     }

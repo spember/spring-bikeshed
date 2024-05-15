@@ -1,6 +1,7 @@
 package com.pember.bikeshed.config
 
 import com.pember.bikedshed.memory.StubUserRepository
+import com.pember.bikeshed.core.bikes.BikeAvailabilityRepository
 import com.pember.bikeshed.core.bikes.BikeManagementService
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.projections.ProjectionOrchestrator
@@ -8,11 +9,11 @@ import com.pember.bikeshed.core.reservations.ReservationService
 import com.pember.bikeshed.core.users.UserConstraintsRepository
 import com.pember.bikeshed.core.users.UserOverviewService
 import com.pember.bikeshed.core.users.UserRegistrationService
+import com.pember.bikeshed.sql.JooqBikeAvailabilityRepository
 import com.pember.bikeshed.sql.JooqEntityStore
 import com.pember.bikeshed.sql.JooqEventRepository
 import com.pember.bikeshed.sql.JooqProjectionOrchestrator
 import com.pember.bikeshed.sql.JooqUserConstraintsRepository
-import com.pember.eventsource.EntityLoader
 import com.pember.eventsource.EventRegistry
 import com.pember.eventsource.EventRepository
 import org.jooq.DSLContext
@@ -28,12 +29,17 @@ class CoreBeans {
     }
 
     @Bean
+    fun provideBikeAvailabilityRepository(dslContext: DSLContext): BikeAvailabilityRepository {
+        return JooqBikeAvailabilityRepository(dslContext)
+    }
+
+    @Bean
     fun provideBikeManagementService(
-        eventRepository: EventRepository<String>,
-        entityLoader: EntityLoader<String>
+        entityStore: EntityStore<*>,
+        bikeAvailabilityRepository: BikeAvailabilityRepository
     ): BikeManagementService {
 
-        return BikeManagementService(eventRepository, entityLoader)
+        return BikeManagementService(entityStore, bikeAvailabilityRepository)
     }
 
     @Bean
@@ -70,13 +76,10 @@ class CoreBeans {
     @Bean
     fun provideUserRegistrationService(
         eventRepository: EventRepository<String>,
-        entityLoader: EntityLoader<String>,
         userConstraintsRepository: UserConstraintsRepository,
         entityStore: EntityStore<*>
     ): UserRegistrationService {
         return UserRegistrationService(
-            eventRepository,
-            entityLoader,
             userConstraintsRepository,
             entityStore
         )
@@ -87,10 +90,5 @@ class CoreBeans {
         val registry = EventRegistry()
         registry.scan("com.pember.bikeshed.core")
         return registry
-    }
-
-    @Bean
-    fun provideEntityLoader(eventRepository: EventRepository<String>): EntityLoader<String> {
-        return EntityLoader(eventRepository);
     }
 }
