@@ -40,6 +40,11 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
 
     fun getClaimedBikes(): List<BikeId> = bikesRented.toList()
 
+
+    fun mayEditBikes(): Boolean {
+        return status == Status.PENDING && active && revision > 0
+    }
+
     override fun receiveEvent(eventEnvelope: EventEnvelope<ReservationId, out Event>) {
         /*
         In other entities we might do large blocks for each of these event handlers, but in this case we're

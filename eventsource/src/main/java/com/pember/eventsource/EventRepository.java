@@ -33,6 +33,8 @@ public interface EventRepository<T> {
     <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForId(@Nonnull final EI entityId);
     // todo: you'll want to change these load operations to require a Supplier so that we can stream events to the Supplier in batches
 
+    <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForIds(@Nonnull final List<EI> entityIds);
+
     /**
      * For most day-to-day use cases, {@link #loadForId(EntityId) loadForId()} will be used most often, as it should
      * load all persisted Events for the provided Entity. However, there will occasions where it is useful to load an

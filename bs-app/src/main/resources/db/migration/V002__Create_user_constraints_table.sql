@@ -1,5 +1,6 @@
 create table user_constraints(
     user_id varchar(32) not null primary key,
+    revision int not null default 0,
     email varchar(256) not null,
     is_employee boolean not null,
     constraint uc_email unique(email)

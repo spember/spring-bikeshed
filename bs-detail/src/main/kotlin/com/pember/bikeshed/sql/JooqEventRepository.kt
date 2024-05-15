@@ -2,6 +2,7 @@ package com.pember.bikeshed.sql
 
 import com.pember.bikeshed.db.jooq.Tables.EVENT_JOURNAL
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.pember.bikeshed.db.jooq.tables.records.EventJournalRecord
 import com.pember.eventsource.EntityId
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
@@ -60,18 +61,19 @@ class JooqEventRepository(
         // first find most recent snapshot for entity
         return jooq.selectFrom(EVENT_JOURNAL)
             .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
+            .orderBy(EVENT_JOURNAL.REVISION.asc())
             .fetch()
-            .map { record ->
-                EventEnvelope(
-                    // because our query used the original id, just slap it back in there
-                    entityId,
-                    record.revision,
-                    record.agent,
-                    record.timeOccurred.toInstant(),
-                    record.timeObserved.toInstant(),
-                    objectMapper.readValue(record.data.data(), eventRegistry.getClassForAlias(record.eventType).get())
-                )
-            }.toList()
+            .map { record -> convert(entityId, record) }.toList()
+    }
+
+    override fun <EI : EntityId<String>> loadForIds(entityIds: MutableList<EI>): List<EventEnvelope<EI, Event>> {
+        val lookup: MutableMap<String, EI> = mutableMapOf()
+        entityIds.forEach { lookup[it.value] = it }
+        return jooq.selectFrom(EVENT_JOURNAL)
+            .where(EVENT_JOURNAL.ENTITY_ID.`in`(entityIds.map { it.value }))
+            .orderBy(EVENT_JOURNAL.REVISION.asc())
+            .fetch()
+            .map { record -> convert(lookup[record.entityId]!!, record) }.toList()
     }
 
     override fun <EI : EntityId<String>> loadForIdAndRevision(
@@ -80,6 +82,17 @@ class JooqEventRepository(
     ): List<EventEnvelope<EI, Event>> {
         TODO("Not yet implemented")
     }
+
+    private fun <EI : EntityId<String>> convert(entityId:EI, record: EventJournalRecord): EventEnvelope<EI, Event> =
+        EventEnvelope(
+            // because our query used the original id, just slap it back in there
+            entityId,
+            record.revision,
+            record.agent,
+            record.timeOccurred.toInstant(),
+            record.timeObserved.toInstant(),
+            objectMapper.readValue(record.data.data(), eventRegistry.getClassForAlias(record.eventType).get())
+        )
 
     override fun <EI : EntityId<String>> countEventsForId(entityId: EI ): Int {
         return jooq.selectCount()

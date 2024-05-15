@@ -25,7 +25,7 @@ public abstract class DomainEntity<I extends EntityId<?>> {
 
     private final I id;
     private int revision = 0;
-    protected boolean active = true;
+    public boolean active = true;
 
 
     /**

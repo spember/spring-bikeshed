@@ -2,6 +2,7 @@ package com.pember.bikeshed.core.bikes
 
 import com.pember.bikeshed.core.BikeId
 import com.pember.bikeshed.core.Foo
+import com.pember.bikeshed.core.ReservationId
 import com.pember.eventsource.DomainEntity
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
@@ -23,6 +24,13 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
 
     var timesRepaired: Int = 0
         private set
+
+    var currentReservation: ReservationId? = null
+        private set
+
+    fun isAvailableToRent(): Boolean {
+        return available && active && revision > 0
+    }
 
     override fun receiveEvent(eventEnvelope: EventEnvelope<BikeId, out Event>) {
         when (val event = eventEnvelope.event) {
@@ -52,6 +60,11 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
                 available = false
                 active = false
             }
+            is BikeRented -> {
+                available = false
+                currentReservation = event.reservation
+            }
+
             else -> throw UnknownEventException(event)
         }
     }

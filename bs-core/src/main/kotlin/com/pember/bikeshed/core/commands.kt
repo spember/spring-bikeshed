@@ -24,5 +24,11 @@ class OpenNewReservation(
 ): Command(employee)
 
 
+class AddBikesToReservation(
+    employee: UserId,
+    val reservationId: ReservationId,
+    val bikeIds: List<BikeId>
+): Command(employee)
+
 
 

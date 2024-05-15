@@ -1,12 +1,19 @@
 package com.pember.bikeshed
 
+import com.pember.bikeshed.core.AddBikesToReservation
+import com.pember.bikeshed.core.BikeId
 import com.pember.bikeshed.core.OpenNewReservation
+import com.pember.bikeshed.core.RegisterNewBike
 import com.pember.bikeshed.core.UserId
+import com.pember.bikeshed.core.bikes.Bike
+import com.pember.bikeshed.core.bikes.BikeColor
+import com.pember.bikeshed.core.bikes.BikeManagementService
+import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.reservations.Reservation
 import com.pember.bikeshed.core.reservations.ReservationService
 import com.pember.bikeshed.support.BaseIntegrationTest
-import com.pember.eventsource.EventRepository
-import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
@@ -18,13 +25,32 @@ class ReservationLifecycleTest: BaseIntegrationTest() {
     lateinit var reservationService: ReservationService
 
     @Autowired
-    lateinit var eventRepository: EventRepository<String>
+    lateinit var entityStore: EntityStore<*>
+
+    @Autowired
+    lateinit var bikeManagementService: BikeManagementService
 
     @Test
     fun `Opening a Reservation should reflect the user and claim the Bike`() {
 
         val employee = UserId("stu")
         val customer = UserId("Bob Smith")
+
+        // create some bikes
+        val b1: BikeId = bikeManagementService.registerNewBike(RegisterNewBike(
+            employee,
+            BikeId("bike-one"),
+            BikeColor.BLUE,
+            "The Bike Emporium"
+        ))
+
+        val b2 = bikeManagementService.registerNewBike(RegisterNewBike(
+            employee,
+            BikeId("bike-two"),
+            BikeColor.RED,
+            "The Bike Emporium"
+        ))
+
 
         val resId = reservationService.handle(
             OpenNewReservation(
@@ -35,15 +61,19 @@ class ReservationLifecycleTest: BaseIntegrationTest() {
                 listOf()
             ))
 
+        reservationService.handle(AddBikesToReservation(customer, resId, listOf(b1, b2)))
 
 
-        val res = Reservation(resId)
-        eventRepository.loadForId(resId).forEach { event ->
-            res.apply(event)
-        }
+        val res = entityStore.loadCurrentState(Reservation(resId))
+
 
         assertEquals(res.status, Reservation.Status.PENDING)
         assertEquals(res.customer, customer)
-        assertEquals(true, res.getClaimedBikes().isEmpty())
+        assertEquals(2, res.getClaimedBikes().size)
+
+        val bikes = entityStore.loadCurrentState(listOf(Bike(b1), Bike(b2)))
+        bikes.forEach {
+            Assertions.assertFalse(it.available)
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.pember.bikeshed.core.bikes
 
+import com.pember.bikeshed.core.ReservationId
 import com.pember.bikeshed.core.UserId
 import com.pember.eventsource.Event
 import com.pember.eventsource.EventAlias
@@ -17,12 +18,8 @@ are part of the event envelope, so we don't need to include them in the event it
 data class BikeAddedToInventory(val color: BikeColor,
                                 val fromSource: String): Event
 
-data class BikeRented(val renter: UserId,
-                      val expectedReturn: Instant,
-                      val rentalFee: Int): Event
-data class BikeRentedV2(val renter: UserId,
-                        val expectedReturn: Instant,
-                        val rentalFee: Int,
+data class BikeRented(val reservation: ReservationId): Event
+data class BikeRentedV2(val reservation: ReservationId,
                         val discount: Int): Event
 
 data class BikeReturned(val toSource: String): Event
