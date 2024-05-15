@@ -49,6 +49,8 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
         /*
         In other entities we might do large blocks for each of these event handlers, but in this case we're
         choosing to use "fancy private setters" to make this block more succinct. This is a stylistic choice.
+
+        I also like overloading the handler methods to all have the same name, though this is also a stylistic choice.
          */
         when(val event = eventEnvelope.event) {
             is ReservationOpened -> handle(event)
@@ -56,8 +58,9 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
             is BikesRemovedFromReservation -> handle(event)
             is ReservationBegun -> handle(event)
             is ReservationCompleted -> handle(event)
-            // nothing wrong with all handing the full envelope to get access to time
-            is ReservationCancelled -> handle(event, eventEnvelope)
+            // nothing wrong with all handing the full envelope to get access to the timestamps on it
+            // as sometimes the event itself is just a signal... in this case that the reservation should be cancelled
+            is ReservationCancelled -> handle(eventEnvelope)
 
             else -> throw UnknownEventException(event)
         }
@@ -88,7 +91,7 @@ class Reservation(val resId: ReservationId): DomainEntity<ReservationId>(resId) 
         status = Status.COMPLETED
     }
 
-    private fun handle(event: ReservationCancelled, eventEnvelope: EventEnvelope<ReservationId, out Event>) {
+    private fun handle(eventEnvelope: EventEnvelope<ReservationId, out Event>) {
         status = Status.CANCELLED
         endTime = eventEnvelope.timeOccurred
     }

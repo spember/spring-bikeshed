@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 class ReservationService(
-    private val entityStore: EntityStore<*>,
+    private val entityStore: EntityStore<*>
 ) {
 
     fun handle(command: OpenNewReservation): ReservationId {

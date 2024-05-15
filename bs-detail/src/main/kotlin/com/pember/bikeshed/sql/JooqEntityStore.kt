@@ -9,6 +9,8 @@ import com.pember.eventsource.Event
 import com.pember.eventsource.EventEnvelope
 import org.jooq.Configuration
 import org.jooq.DSLContext
+import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
 
 class JooqEntityStore(
     private val dslContext: DSLContext,
@@ -17,13 +19,25 @@ class JooqEntityStore(
 ): EntityStore<Configuration>(jooqEventRepository) {
 
     override fun <EI : BaseShedId, DE : DomainEntity<EI>> persist(ewe: EntityWithEvents<EI, DE>) {
-
         dslContext.transaction { trx ->
             jooqEventRepository.withTx(trx).persist(ewe.uncommittedEvents)
             ewe.uncommittedEvents.forEach { event ->
-                projectionOrchestrator.receiveEvent(trx, event)
+                projectionOrchestrator.receiveEventForConstraints(trx, event)
             }
         }
+        val work = Executors.newFixedThreadPool(1).submit {
+            log.info("Dispatching events async")
+            ewe.uncommittedEvents.forEach { event ->
+                try {
+                    projectionOrchestrator.receiveEventEventually(event)
+                } catch(e: Exception) {
+                    log.error("Could not process event async", e)
+                }
+            }
+
+            asyncCompleteHandler.accept(ewe.uncommittedEvents.size)
+        }
+        log.info("job dispatched -> ${work.state()}")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -32,8 +46,27 @@ class JooqEntityStore(
         dslContext.transaction { trx ->
             jooqEventRepository.withTx(trx).persist(events)
             events.forEach { event ->
-                projectionOrchestrator.receiveEvent(trx, event)
+                projectionOrchestrator.receiveEventForConstraints(trx, event)
             }
         }
+
+        // in a real-world scenario we'd publish these onto a queue for delayed, eventually-consistent processing
+
+        val work = Executors.newFixedThreadPool(1).submit {
+            log.info("Dispatching events async")
+            events.forEach { event ->
+                try {
+                    projectionOrchestrator.receiveEventEventually(event)
+                } catch(e: Exception) {
+                    log.error("Could not process event async", e)
+                }
+            }
+            asyncCompleteHandler.accept(events.size)
+        }
+        log.info("job dispatched -> ${work.state()}")
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(JooqEntityStore::class.java)
     }
 }

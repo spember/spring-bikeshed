@@ -27,7 +27,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         val bikeId = BikeId("fake-bike")
         val user = UserId("stu")
 
-        assertTrue(bikeManagementService.getAvailableBikes().isEmpty())
+        assertFalse(bikeManagementService.getAvailableBikes().contains(bikeId))
 
         // When
         assertThrows<IllegalArgumentException> {
@@ -52,6 +52,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         assertFalse(bikeManagementService.getAvailableBikes().contains(bikeId))
 
         var bike = bikeManagementService.getBikeById(bikeId)!!
+
         assertEquals(false, bike.available)
 
         bikeManagementService.completeRepairs(bikeId, user, 100)

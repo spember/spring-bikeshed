@@ -11,6 +11,9 @@ import java.util.function.Consumer
 
 abstract class EntityStore<TX>(private val eventRepository: EventRepository<String>) {
 
+    protected var asyncCompleteHandler = Consumer{ _:Int ->}
+        private set
+
     abstract fun <EI: BaseShedId, DE: DomainEntity<EI>>persist(ewe: EntityWithEvents<EI, DE>)
 
     abstract fun persistMultiple(ewes: List<EntityWithEvents<out EntityId<String>, out DomainEntity<out EntityId<String>>>>)
@@ -33,6 +36,10 @@ abstract class EntityStore<TX>(private val eventRepository: EventRepository<Stri
                 entities.find { it.id == eventEnvelope.entityId }?.apply(eventEnvelope)
             }
         return entities
+    }
+
+    fun onAsyncComplete(handler: Consumer<Int>) {
+        asyncCompleteHandler = handler
     }
 
 }

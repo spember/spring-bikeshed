@@ -9,6 +9,7 @@ plugins {
 dependencies {
     implementation(project(":bs-core"))
     implementation(libs.jooq)
+    implementation(libs.slf4j.api)
     implementation(libs.bundles.jackson)
     testImplementation(libs.junit.jupiter)
     jooqGenerator(libs.postgres.driver)

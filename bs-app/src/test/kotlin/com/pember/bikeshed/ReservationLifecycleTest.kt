@@ -11,6 +11,7 @@ import com.pember.bikeshed.core.bikes.BikeManagementService
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.reservations.Reservation
 import com.pember.bikeshed.core.reservations.ReservationService
+import com.pember.bikeshed.core.reservations.ReservationsQueryModelRepository
 import com.pember.bikeshed.support.BaseIntegrationTest
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.CountDownLatch
 
 class ReservationLifecycleTest: BaseIntegrationTest() {
 
@@ -30,11 +32,19 @@ class ReservationLifecycleTest: BaseIntegrationTest() {
     @Autowired
     lateinit var bikeManagementService: BikeManagementService
 
+    @Autowired
+    lateinit var reservationsQueryModelRepository: ReservationsQueryModelRepository
+
     @Test
     fun `Opening a Reservation should reflect the user and claim the Bike`() {
 
         val employee = UserId("stu")
         val customer = UserId("Bob Smith")
+        val latch = CountDownLatch(1)
+        entityStore.onAsyncComplete {
+            println("*** async!")
+            latch.countDown()
+        }
 
         // create some bikes
         val b1: BikeId = bikeManagementService.registerNewBike(RegisterNewBike(
@@ -61,6 +71,7 @@ class ReservationLifecycleTest: BaseIntegrationTest() {
                 listOf()
             ))
 
+
         reservationService.handle(AddBikesToReservation(customer, resId, listOf(b1, b2)))
 
 
@@ -70,6 +81,9 @@ class ReservationLifecycleTest: BaseIntegrationTest() {
         assertEquals(res.status, Reservation.Status.PENDING)
         assertEquals(res.customer, customer)
         assertEquals(2, res.getClaimedBikes().size)
+
+        latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
+        assertEquals(1, reservationsQueryModelRepository.getOpenReservationIds().size)
 
         val bikes = entityStore.loadCurrentState(listOf(Bike(b1), Bike(b2)))
         bikes.forEach {
