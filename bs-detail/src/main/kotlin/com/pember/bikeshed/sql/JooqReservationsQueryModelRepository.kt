@@ -38,31 +38,45 @@ class JooqReservationsQueryModelRepository(private val jooq: DSLContext): Reserv
     }
 
     override fun addBikesToReservation(reservationId: ReservationId, revision: Int, bikeIds: List<BikeId>) {
-        println("Hi")
-        val q = jooq.insertInto(RESERVATION_BIKES).columns(
-            RESERVATION_BIKES.RESERVATION_ID,
-            RESERVATION_BIKES.BIKE_ID,
-            RESERVATION_BIKES.STATUS
-        )
-        bikeIds.forEach {
-            q.values(
-                reservationId.value,
-                it.value,
-                "RESERVED"
+        jooq.transaction { trx->
+            val tx = trx.dsl()
+            val q = tx.insertInto(RESERVATION_BIKES).columns(
+                RESERVATION_BIKES.RESERVATION_ID,
+                RESERVATION_BIKES.BIKE_ID,
+                RESERVATION_BIKES.STATUS
             )
+            bikeIds.forEach {
+                q.values(
+                    reservationId.value,
+                    it.value,
+                    "RESERVED"
+                )
+            }
+            q.execute()
+           updateReservationRevision(tx, reservationId, revision)
         }
-        println("About to execute query!")
-        q.execute()
-        println("Result?")
     }
 
 
-    override fun removeBikes(reservationId: ReservationId, bikeIds: List<BikeId>) {
-        jooq.deleteFrom(RESERVATION_BIKES)
-            .where(RESERVATION_BIKES.RESERVATION_ID.eq(reservationId.value))
-            .and(RESERVATION_BIKES.BIKE_ID.`in`(bikeIds.map { it.value }))
+    override fun removeBikes(reservationId: ReservationId, revision: Int, bikeIds: List<BikeId>) {
+        jooq.transaction { trx ->
+            val tx = trx.dsl()
+            tx.deleteFrom(RESERVATION_BIKES)
+                .where(RESERVATION_BIKES.RESERVATION_ID.eq(reservationId.value))
+                .and(RESERVATION_BIKES.BIKE_ID.`in`(bikeIds.map { it.value }))
+                .execute()
+            updateReservationRevision(tx, reservationId, revision)
+        }
+
+    }
+
+    private fun updateReservationRevision(dslContext: DSLContext, reservationId: ReservationId, revision: Int) =
+        dslContext
+            .update(CURRENT_OPEN_RESERVATIONS)
+            .set(CURRENT_OPEN_RESERVATIONS.REVISION, revision)
+            .where(CURRENT_OPEN_RESERVATIONS.RESERVATION_ID.eq(reservationId.value))
+            .and(CURRENT_OPEN_RESERVATIONS.REVISION.eq(revision - 1))
             .execute()
-    }
 
     override fun archiveReservation(reservationId: ReservationId) {
         val foundRes = jooq.selectFrom(CURRENT_OPEN_RESERVATIONS)

@@ -64,7 +64,6 @@ abstract class ProjectionOrchestrator<TX> {
      */
     @Suppress("UNCHECKED_CAST")
     fun <I: BaseShedId, E: Event> receiveEventEventually(eventEnvelope: EventEnvelope<I, E>) {
-        println("Handling async ${eventEnvelope.event}")
         when(val event = eventEnvelope.event) {
             is ReservationOpened -> { asyncOpenReservation(eventEnvelope as EventEnvelope<ReservationId, ReservationOpened>) }
             is BikesAddedToReservation -> asyncAddBikes(eventEnvelope as EventEnvelope<ReservationId, BikesAddedToReservation>)

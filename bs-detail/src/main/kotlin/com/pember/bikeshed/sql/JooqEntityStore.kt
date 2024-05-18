@@ -18,31 +18,18 @@ class JooqEntityStore(
     private val projectionOrchestrator: JooqProjectionOrchestrator
 ): EntityStore<Configuration>(jooqEventRepository) {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <EI : BaseShedId, DE : DomainEntity<EI>> persist(ewe: EntityWithEvents<EI, DE>) {
-        dslContext.transaction { trx ->
-            jooqEventRepository.withTx(trx).persist(ewe.uncommittedEvents)
-            ewe.uncommittedEvents.forEach { event ->
-                projectionOrchestrator.receiveEventForConstraints(trx, event)
-            }
-        }
-        val work = Executors.newFixedThreadPool(1).submit {
-            log.info("Dispatching events async")
-            ewe.uncommittedEvents.forEach { event ->
-                try {
-                    projectionOrchestrator.receiveEventEventually(event)
-                } catch(e: Exception) {
-                    log.error("Could not process event async", e)
-                }
-            }
-
-            asyncCompleteHandler.accept(ewe.uncommittedEvents.size)
-        }
-        log.info("job dispatched -> ${work.state()}")
+        saveAndRoute(ewe.uncommittedEvents as List<EventEnvelope<EntityId<String>, Event>>)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun persistMultiple(ewes: List<EntityWithEvents<out EntityId<String>, out DomainEntity<out EntityId<String>>>>) {
         val events: List<EventEnvelope<EntityId<String>, Event>> = ewes.flatMap { it.uncommittedEvents } as List<EventEnvelope<EntityId<String>, Event>>
+        saveAndRoute(events)
+    }
+
+    private fun saveAndRoute(events: List<EventEnvelope<EntityId<String>, Event>>) {
         dslContext.transaction { trx ->
             jooqEventRepository.withTx(trx).persist(events)
             events.forEach { event ->

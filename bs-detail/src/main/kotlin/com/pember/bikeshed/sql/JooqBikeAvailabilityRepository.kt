@@ -30,7 +30,7 @@ class JooqBikeAvailabilityRepository(private val jooq: DSLContext): BikeAvailabi
     override fun removeAvailableBike(bikeId: BikeId, currentRevision: Int) {
         jooq.deleteFrom(AvailableBikes.AVAILABLE_BIKES)
             .where(AvailableBikes.AVAILABLE_BIKES.BIKE_ID.eq(bikeId.value))
-//            .and(AvailableBikes.AVAILABLE_BIKES.REVISION.eq(currentRevision))
+            .and(AvailableBikes.AVAILABLE_BIKES.REVISION.eq(currentRevision-1))
             .execute()
     }
 }

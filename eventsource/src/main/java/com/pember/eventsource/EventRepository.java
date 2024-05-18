@@ -2,6 +2,7 @@ package com.pember.eventsource;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * An Event Repository for some Event Stream. Can handle multiple different entities - as long as the Entity Identifier
@@ -65,5 +66,14 @@ public interface EventRepository<T> {
      */
     <EI extends EntityId<T>> Integer countEventsForId(@Nonnull final EI entityId);
 
+
+    /**
+     * For recovery purposes, this method will stream the historical events for all entities in the system. This is
+     * an extremely expensive operation, and care must be taken during implementation to ensure it is done asynchronously
+     * and with efficient resource usage.
+     *
+     * @return a Stream of all Event Envelopes in the system
+     */
+    Stream<EventEnvelope<? extends EntityId<T>, Event>> streamAllEvents();
 
 }

@@ -49,8 +49,6 @@ class JooqProjectionOrchestrator(
     override fun asyncAddBikes(
         eventEnvelope: EventEnvelope<ReservationId, BikesAddedToReservation>
     ) {
-        println("uhhh ${eventEnvelope.event.bikeIds}, ${eventEnvelope.entityId}")
-
         reservationsQueryModelRepository.addBikesToReservation(
             eventEnvelope.entityId, eventEnvelope.revision, eventEnvelope.event.bikeIds
         )
@@ -60,7 +58,7 @@ class JooqProjectionOrchestrator(
         eventEnvelope: EventEnvelope<ReservationId, BikesRemovedFromReservation>
     ) {
         reservationsQueryModelRepository.removeBikes(
-            ReservationId(eventEnvelope.entityId.value), eventEnvelope.event.bikeIds
+            ReservationId(eventEnvelope.entityId.value), eventEnvelope.revision, eventEnvelope.event.bikeIds
         )
     }
 

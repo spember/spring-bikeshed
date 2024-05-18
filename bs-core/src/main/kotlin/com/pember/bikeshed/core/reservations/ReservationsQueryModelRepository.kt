@@ -11,7 +11,7 @@ interface ReservationsQueryModelRepository {
 
     fun addBikesToReservation(reservationId: ReservationId, revision: Int, bikeIds: List<BikeId>)
 
-    fun removeBikes(reservationId: ReservationId, bikeIds: List<BikeId>)
+    fun removeBikes(reservationId: ReservationId, revision: Int, bikeIds: List<BikeId>)
 
     fun archiveReservation(reservationId: ReservationId)
 }

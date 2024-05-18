@@ -2,6 +2,7 @@ package com.pember.bikeshed.sql
 
 import com.pember.bikeshed.db.jooq.Tables.EVENT_JOURNAL
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.pember.bikeshed.core.BikeId
 import com.pember.bikeshed.db.jooq.tables.records.EventJournalRecord
 import com.pember.eventsource.EntityId
 import com.pember.eventsource.Event
@@ -13,6 +14,7 @@ import org.jooq.DSLContext
 import org.jooq.JSONB
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.stream.Stream
 
 
 class JooqEventRepository(
@@ -99,6 +101,11 @@ class JooqEventRepository(
             .from(EVENT_JOURNAL)
             .where(EVENT_JOURNAL.ENTITY_ID.eq(entityId.value))
             .fetchOne()?.value1()!!
+    }
+
+    override fun streamAllEvents(): Stream<EventEnvelope<out EntityId<String>, Event>> {
+        return jooq.fetchStream(EVENT_JOURNAL)
+            .map { record -> convert(BikeId(record.entityId), record) }
     }
 
     fun withTx(tx: Configuration): JooqEventRepository {
