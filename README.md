@@ -51,7 +51,22 @@ you'd like more background). The modules are as follows:
 
 #### Implementation of the Event Repository
 
+The Event Repository is the main adapter between the `core` and the EventStore, in this case a Postgres database. 
+A glance at the [JooqEventRepository](bs-detail/src/main/kotlin/com/pember/bikeshed/sql/JooqEventRepository.kt) should show just how straightforward it is to interact with our journal at a basic
+level. In other words, we have not implemented Snapshotting nor querying by time or by event type. 
+
+#### Event Registration and Aliasing
+
+As shown in the `JooqEventRepository` our system detects all `Event` classes on startup and stores the mappings in a tool 
+called the [EventRegistry](eventsource/src/main/java/com/pember/eventsource/EventRegistry.java). This in turn used by the
+`JooqEventRepository` to grab the event type and the class when storing and loading events.
+
+The system supports (and encourages) the use of `@EventAlias` annotations on the Event classes as way to denote specific
+strings to be used when storing the event, otherwise the class name is used (which is almost never what you want).
+
 #### Reading and writing multiple Entities
+
+
 
 #### Projection Orchestration
 
