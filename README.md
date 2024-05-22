@@ -41,13 +41,17 @@ objects.
 First, this system is split into multiple modules. It follows a Clean Architecture model (I also [gave a talk on this](https://www.youtube.com/watch?v=mbNzUkNjrnA) if
 you'd like more background). The modules are as follows:
 
-* `bs-core`
-* `bs-detail`
-* `bs-app`
+* `bs-core` - The core "business" logic, entities, and events
+* `bs-detail` - Implementation of 'the details', e.g. technology-specific adapters. In this case, mostly Postgres and Jooq.
+* `bs-app` - Where Spring Boot application lives and is the place of 'integration' of the other modules. Configuration, http layer, and integration tests.
 * `eventsource` - What you're here for
 
+At first glance, this multi-module project structure is arguably a bit overkill for this demo. However, it also may
+demonstrate some additional "clean architecture" practices, like handling transactions across multiple objects.
 
 ### Sections to dive into
+
+The following is some of the key concepts that I feel is worth taking a look at.
 
 #### Implementation of the Event Repository
 
@@ -66,10 +70,28 @@ strings to be used when storing the event, otherwise the class name is used (whi
 
 #### Reading and writing multiple Entities
 
+One interesting aspect of writing to an append-only journal is that multiple individual "updates" (or what would otherwise be
+updates in a non-ES system) can be handled in a single write transaction. This will almost certainly be highly performant, particularly
+compared with an equivalent update batch. This may not be immediately obvious looking at the `JooqEventRepository`, but 
+the [EntityStore](bs-detail/src/main/kotlin/com/pember/bikeshed/sql/JooqEntityStore.kt) - a convenience class for handling the peristence of events + passing them on to Query Models - 
+demonstrates how this can be done.
 
+Similarly, loading multiple, different entities, is simply a matter of instantiating empty ones, fetching their events,
+and passing them to the instances using a method similar to a `group by`. This can be seen in the abstract [EntityStore](bs-core/src/main/kotlin/com/pember/bikeshed/core/common/EntityStore.kt) class.
 
 #### Projection Orchestration
 
+The [ProjectionOrchestrator](bs-core/src/main/kotlin/com/pember/bikeshed/core/projections/ProjectionOrchestrator.kt) is a rather cludgy or ham-fisted 
+demonstration of how to route events into relative mechanisms to handle updating projections. It used by the `EntityStore`
+after persisting events, and can differentiate between "constraint projections" which need to be updated in the same transaction
+as the events (as we've chosen an RDBMS for our event store), and "async projections / query models", where it is acceptable to 
+be eventually consistent.
+
 #### Replayer
 
-#### ?
+The act of "replaying" events is vital for a variety of use cases, particularly regarding model changes, rebuilding data stores, error recovery, and the like. 
+A somewhat trivial example of how to do this is located in the [EventReplayer](bs-detail/src/main/kotlin/com/pember/bikeshed/replay/EventReplayer.kt) class.
+
+#### TODO?
+
+
