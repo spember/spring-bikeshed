@@ -1,5 +1,6 @@
 package com.pember.bikeshed.http
 
+import com.pember.bikeshed.config.Constants
 import com.pember.bikeshed.core.BikeId
 import com.pember.bikeshed.core.bikes.BikeManagementService
 import org.slf4j.LoggerFactory
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.ResponseBody
 
 
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = [Constants.CORS_ORIGINS])
 @Controller
 class BikeController(private val bikeManagementService: BikeManagementService) {
 

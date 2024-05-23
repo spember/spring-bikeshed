@@ -42,7 +42,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         val bikeId = BikeId("brl-1")
         val user = UserId("manager-stu")
 
-        bikeManagementService.registerNewBike(
+        bikeManagementService.process(
             RegisterNewBike(user, bikeId, BikeColor.RED, "Bike Distributors, Co.")
         )
 
@@ -69,7 +69,7 @@ class BikeRepairLifecycleTest: BaseIntegrationTest() {
         val bikeId = BikeId("brl-2")
         val user = UserId("manager-stu")
 
-        bikeManagementService.registerNewBike(
+        bikeManagementService.process(
             RegisterNewBike(user, bikeId, BikeColor.GREEN, "Bike Distributors, Co.")
         )
 

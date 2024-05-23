@@ -36,6 +36,8 @@ data class HeldForRepairs(val reason: String): Event
 
 @EventAlias("bike:repairs:completed")
 data class RepairsCompleted(val costToRepair: Int): Event
+@EventAlias("bike:repairs:completed:v2")
+data class RepairsCompletedV2(val costToRepair: Int): Event
 
 @EventAlias("bike:retired")
 data class BikeRetired(val reason: String): Event

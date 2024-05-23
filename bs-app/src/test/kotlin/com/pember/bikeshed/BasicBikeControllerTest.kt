@@ -36,7 +36,7 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
     fun `Looking up a valid bike should return details` () {
         val bikeId = BikeId("AZ-123")
 
-        bikeManagementService.registerNewBike(RegisterNewBike(
+        bikeManagementService.process(RegisterNewBike(
             UserId("stu"), bikeId, BikeColor.RED, "Bike Distributors, Co.")
         )
 

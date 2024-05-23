@@ -17,9 +17,9 @@ class BikeManagementService(
         return bikeAvailabilityRepository.getAvailableBikes()
     }
 
-    fun registerNewBike(registerNewBike: RegisterNewBike): BikeId {
+    fun process(registerNewBike: RegisterNewBike): BikeId {
         val bike = Bike(registerNewBike.bikeId)
-        val ewe = EntityWithEvents(bike, registerNewBike.source.value)
+        val ewe = EntityWithEvents(bike, registerNewBike.agent.value, registerNewBike.occurredAt)
         ewe.apply(BikeAddedToInventory(registerNewBike.color, registerNewBike.purchasedFrom))
         entityStore.persist(ewe)
         log.info("Bike '${registerNewBike.bikeId}' has been added to inventory")

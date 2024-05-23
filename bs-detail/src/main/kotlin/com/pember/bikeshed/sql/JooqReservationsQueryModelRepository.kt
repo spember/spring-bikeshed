@@ -18,6 +18,13 @@ class JooqReservationsQueryModelRepository(private val jooq: DSLContext): Reserv
             .map { it.reservationId }
             .map { ReservationId(it) }.toList()
 
+    override fun getPastReservationIds(): List<ReservationId> =
+        jooq.selectFrom(INACTIVE_RESERVATIONS)
+            .fetch()
+            .map { it.reservationId }
+            .map { ReservationId(it) }.toList()
+
+
     override fun createActiveReservation(reservationId: ReservationId, revision: Int, event: ReservationOpened) {
         jooq.insertInto(CURRENT_OPEN_RESERVATIONS)
             .columns(
@@ -84,6 +91,7 @@ class JooqReservationsQueryModelRepository(private val jooq: DSLContext): Reserv
             .fetchOne()
         if (foundRes == null) {
             // attempted to archive a reservation that doesn't exist in our QM
+
             return
         }
 
@@ -115,7 +123,10 @@ class JooqReservationsQueryModelRepository(private val jooq: DSLContext): Reserv
             tx.deleteFrom(CURRENT_OPEN_RESERVATIONS)
                 .where(CURRENT_OPEN_RESERVATIONS.RESERVATION_ID.eq(reservationId.value))
                 .execute()
+
         }
+
+        getOpenReservationIds().forEach { println(it) }
     }
 
 

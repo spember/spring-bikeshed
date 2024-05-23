@@ -1,5 +1,6 @@
 package com.pember.bikeshed.http
 
+import com.pember.bikeshed.config.Constants
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.users.UserResponse
 import org.springframework.http.ResponseEntity
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ResponseBody
 
-@CrossOrigin(origins = ["http://localhost:5173"])
+@CrossOrigin(origins = [Constants.CORS_ORIGINS])
 @Controller
 class UserDetailsController() {
 

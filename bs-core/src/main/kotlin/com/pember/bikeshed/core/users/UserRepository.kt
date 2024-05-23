@@ -4,5 +4,5 @@ import com.pember.bikeshed.core.UserId
 
 interface UserRepository {
 
-    fun maybeFindById(id: UserId): UserDetails?
+    fun maybeFindById(id: UserId): User?
 }

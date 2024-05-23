@@ -3,3 +3,15 @@ spring:
     url: jdbc:postgresql://localhost:5532/bikeshed?loggerLevel=OFF
     username: postgres
     password: postgres
+  bikeshed:
+    seed: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  flyway:
+    enabled: true
+  bikeshed:
+    seed: false

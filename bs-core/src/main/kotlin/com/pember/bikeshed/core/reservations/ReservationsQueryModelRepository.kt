@@ -7,6 +7,8 @@ interface ReservationsQueryModelRepository {
 
     fun getOpenReservationIds(): List<ReservationId>
 
+    fun getPastReservationIds(): List<ReservationId>
+
     fun createActiveReservation(reservationId: ReservationId, revision: Int, event: ReservationOpened)
 
     fun addBikesToReservation(reservationId: ReservationId, revision: Int, bikeIds: List<BikeId>)

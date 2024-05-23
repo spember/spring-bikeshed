@@ -53,8 +53,8 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
             is RepairsCompleted -> {
                 available = true
                 timesRepaired++
-
             }
+            
             is BikeRetired -> {
                 available = false
                 active = false
@@ -62,6 +62,11 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
             is BikeRented -> {
                 available = false
                 currentReservation = event.reservation
+            }
+
+            is BikeReturned -> {
+                available = true
+                currentReservation = null
             }
 
             else -> throw UnknownEventException(event)

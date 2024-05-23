@@ -1,5 +1,6 @@
 package com.pember.bikeshed.core.users
 
+import com.pember.bikeshed.core.RegisterNewUser
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.eventsource.EntityWithEvents
@@ -14,24 +15,23 @@ class UserRegistrationService(
      * Attempt to register a new user with the given name and email. Will check the Constraints repository
      * as part of the process, and both update that and insert a new user if successful.
      */
-    fun registerNewUser(name: String, email: String,
-                        isEmployee: Boolean, agent: UserId): UserId {
+    fun process(command: RegisterNewUser): UserId {
 
-        if (name.isEmpty() || email.isEmpty()) {
+        if (command.name.isEmpty() || command.email.isEmpty()) {
             throw IllegalArgumentException("Name and email must not be blank")
         }
 
-        if (!userConstraintsRepository.isEmailUnique(email)) {
-            log.warn("User ${agent.value} attempted to register a user " +
-                    "with a non-unique email: $email")
+        if (!userConstraintsRepository.isEmailUnique(command.email)) {
+            log.warn("User ${command.agent.value} attempted to register a user " +
+                    "with a non-unique email: $command.email")
             throw IllegalArgumentException("Email is not unique")
         }
 
-        val userId = userConstraintsRepository.getNextId(isEmployee)
-        val ewe = EntityWithEvents(User(userId), agent.value)
+        val userId = userConstraintsRepository.getNextId(command.isEmployee)
+        val ewe = EntityWithEvents(User(userId), command.agent.value)
             .apply(
-                UserCreated(name, email),
-                RoleChanged(isEmployee)
+                UserCreated(command.name, command.email),
+                RoleChanged(command.isEmployee)
             )
 
         entityStore.persist(ewe)

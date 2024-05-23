@@ -1,5 +1,6 @@
 package com.pember.bikeshed.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.projections.ProjectionOrchestrator
 import com.pember.bikeshed.core.reservations.ReservationsQueryModelRepository
@@ -35,6 +36,15 @@ class CoreBeans {
     }
 
     @Bean
+    fun provideEventRepository(
+        jooq: DSLContext,
+        objectMapper: ObjectMapper,
+        eventRegistry: EventRegistry
+    ): EventRepository<String> {
+        return JooqEventRepository(jooq, objectMapper, eventRegistry)
+    }
+
+    @Bean
     fun provideEventRegistry(): EventRegistry {
         val registry = EventRegistry()
         registry.scan("com.pember.bikeshed.core")
@@ -53,4 +63,5 @@ class CoreBeans {
             projectionOrchestrator as JooqProjectionOrchestrator
         )
     }
+
 }

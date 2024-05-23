@@ -1,5 +1,6 @@
 package com.pember.bikeshed
 
+import com.pember.bikeshed.core.RegisterNewUser
 import com.pember.bikeshed.core.UserId
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.users.User
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class UserRegistrationTest: BaseIntegrationTest() {
 
@@ -24,7 +27,14 @@ class UserRegistrationTest: BaseIntegrationTest() {
     @Test
     fun `registering a new user should work great` () {
 
-        val id = userRegistrationService.registerNewUser("Stu Nichols", "stu@bikeshed.com", true, UserId("system"))
+        val id = userRegistrationService.process(
+            RegisterNewUser(
+                UserId("system"),
+                "Stu Nichols",
+                "stu@bikeshed.com",
+                true
+            )
+        )
         assertNotNull(id)
 
         val user = entityStore.loadCurrentState(User(id))
@@ -35,12 +45,20 @@ class UserRegistrationTest: BaseIntegrationTest() {
 
     @Test
     fun `registering a user with the same email should not work`() {
-        val bossId = userRegistrationService.registerNewUser("Boss Sam", "sam@bikeshed.com", true, UserId("system"))
+        val bossId = userRegistrationService.process(RegisterNewUser(
+            UserId("system"),
+            "Boss Sam", "sam@bikeshed.com", true,
+            occurredAt = Instant.now().minus(5, ChronoUnit.DAYS)
+        ))
 
-        val customerId = userRegistrationService.registerNewUser("Jane Smith", "janesmith@testmail.com", false, bossId)
+        val customerId = userRegistrationService.process(
+            RegisterNewUser(bossId,"Jane Smith", "janesmith@testmail.com", false )
+        )
 
         assertThrows<IllegalArgumentException> {
-            userRegistrationService.registerNewUser("Joan Smith", "janesmith@testmail.com", false, bossId)
+            userRegistrationService.process(
+                RegisterNewUser(bossId, "Joan Smith", "janesmith@testmail.com", false)
+            )
         }
 
         val boss = entityStore.loadCurrentState(User(bossId))
