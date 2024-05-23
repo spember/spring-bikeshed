@@ -1,7 +1,9 @@
 package com.pember.bikeshed.auth
 
 import com.pember.bikeshed.core.UserId
+import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.users.User
+import com.pember.bikeshed.core.users.UserConstraintsRepository
 import com.pember.bikeshed.core.users.UserRepository
 import org.springframework.stereotype.Service
 
@@ -10,10 +12,20 @@ import org.springframework.stereotype.Service
  * each time
  */
 @Service
-class PrincipalAuthService() {
+class PrincipalAuthService(
+    private val entityStore: EntityStore<*>,
+    private val userConstraintsRepository: UserConstraintsRepository
+) {
 
     fun retrieveCurrentEmployee(): User {
-        val employee = User(UserId("e01"))
-        return employee
+        userConstraintsRepository.listCurrentEmployees().last().let {
+            return entityStore.loadCurrentState(User(it))
+        }
+    }
+
+    fun retrieveCurrentCustomer(): User {
+        userConstraintsRepository.listCustomers().last().let {
+            return entityStore.loadCurrentState(User(it))
+        }
     }
 }

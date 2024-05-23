@@ -16,8 +16,11 @@ interface UserConstraintsRepository {
 
     fun getCurrentEmployeeCount(): Int
 
+    fun listCurrentEmployees(): List<UserId>
+
     fun getCustomerCount(): Int
 
-        
+    fun listCustomers(): List<UserId>
+
     fun getNextId(isEmployee: Boolean): UserId
 }

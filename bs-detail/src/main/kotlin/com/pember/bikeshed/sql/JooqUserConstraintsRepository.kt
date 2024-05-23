@@ -45,6 +45,15 @@ class JooqUserConstraintsRepository(private val jooq: DSLContext): UserConstrain
             .size
     }
 
+    override fun listCurrentEmployees(): List<UserId> = fetchUserIds(true)
+    override fun listCustomers(): List<UserId> = fetchUserIds(false)
+
+    private fun fetchUserIds(isEmployee: Boolean) =
+        jooq.selectFrom(USER_CONSTRAINTS)
+            .where(USER_CONSTRAINTS.IS_EMPLOYEE.eq(isEmployee))
+            .fetch()
+            .map { UserId(it.userId) }
+
     override fun getCustomerCount(): Int {
         return jooq.selectFrom(USER_CONSTRAINTS)
             .where(USER_CONSTRAINTS.IS_EMPLOYEE.eq(false))

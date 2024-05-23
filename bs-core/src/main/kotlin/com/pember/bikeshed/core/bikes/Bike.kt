@@ -54,7 +54,7 @@ class Bike(val id: BikeId): DomainEntity<BikeId>(id) {
                 available = true
                 timesRepaired++
             }
-            
+
             is BikeRetired -> {
                 available = false
                 active = false

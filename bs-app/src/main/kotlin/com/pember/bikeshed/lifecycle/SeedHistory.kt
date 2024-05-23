@@ -31,7 +31,8 @@ class SeedHistory(
 ): ApplicationListener<ContextRefreshedEvent> {
     override fun onApplicationEvent(event: ContextRefreshedEvent) {
         if (shouldSeed) {
-            val eventCount = dslContext.selectCount().from(EventJournal.EVENT_JOURNAL).execute()
+            val eventCount = dslContext.selectFrom(EventJournal.EVENT_JOURNAL).count()
+            log.info("Currently have ${eventCount} events in the journal")
             if (eventCount > 1) {
                 log.info("Skipping seeding as we have ${eventCount} events already...")
             } else {

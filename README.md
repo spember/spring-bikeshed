@@ -1,4 +1,4 @@
-# Bikeshed demo app
+# Bikeshed -> Event Sourcing Demo App
 
 This is a demo app for a presentation I gave at [Spring I/O 2024](https://2024.springio.net/) on Event Sourcing. 
 This application is meant to illustrate how a Spring Application can be made to be Event Sourced. It is very much a toy 
@@ -34,7 +34,7 @@ easily handled by having the 'dev' db running, even if tests are happening. So:
 
 ## Callouts - What to Look at!
 
-Now this is what you should really be looking at. Here I'll attempt to call out various aspects of what I've laid out 
+I'll attempt to call out various aspects of what I've laid out 
 here, and a brief mention of why I believe it's important. Further discussion and comments can be found within key 
 objects.
 
@@ -46,12 +46,14 @@ you'd like more background). The modules are as follows:
 * `bs-app` - Where Spring Boot application lives and is the place of 'integration' of the other modules. Configuration, http layer, and integration tests.
 * `eventsource` - What you're here for
 
-At first glance, this multi-module project structure is arguably a bit overkill for this demo. However, it also may
-demonstrate some additional "clean architecture" practices, like handling transactions across multiple objects.
+At first glance, this multi-module project structure is arguably a bit overkill for this demo. However, it also 
+demonstrates additional "clean architecture" practices, like handling transactions across multiple objects. While the 
+sheer number of interfaces can get in your way as your browse the codebase, the idea I'm attempting to underline with 
+this approach is that: the persistence and retrieval of our events is just another implementation detail.
+
+> Events live in the Core of our system because they are core to our business logic.
 
 ### Sections to dive into
-
-The following is some of the key concepts that I feel is worth taking a look at.
 
 #### Implementation of the Event Repository
 
