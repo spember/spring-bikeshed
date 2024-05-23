@@ -16,7 +16,7 @@ import java.util.Set;
 import static org.reflections.scanners.Scanners.SubTypes;
 
 /**
- * An optional, but convenient tool. Can be used by implementors to maintain a bi-directional lookup of
+ * An optional, but convenient tool. Can be used by implementors to maintain a bidirectional lookup of
  * {@link Event}s to aliases. These aliases are set by annotating Event classes with the {@link EventAlias} annotation.
  */
 public class EventRegistry {

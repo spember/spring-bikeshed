@@ -1,10 +1,8 @@
 package com.pember.bikeshed.config
 
-import com.pember.bikedshed.memory.StubUserRepository
 import com.pember.bikeshed.core.common.EntityStore
 import com.pember.bikeshed.core.projections.ProjectionOrchestrator
 import com.pember.bikeshed.core.reservations.ReservationsQueryModelRepository
-import com.pember.bikeshed.core.users.UserOverviewService
 import com.pember.bikeshed.replay.EventReplayer
 import com.pember.bikeshed.sql.JooqEntityStore
 import com.pember.bikeshed.sql.JooqEventRepository
@@ -17,12 +15,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class CoreBeans {
-
-    @Bean
-    fun provideUserOverviewService(): UserOverviewService {
-        return UserOverviewService(StubUserRepository())
-    }
-
 
     @Bean
     fun provideProjectionOrchestrator(reservationsQueryModelRepository: ReservationsQueryModelRepository): ProjectionOrchestrator<*> {

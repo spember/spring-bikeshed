@@ -1,7 +1,6 @@
 package com.pember.bikeshed.core.bikes
 
 import com.pember.bikeshed.core.BikeId
-import com.pember.bikeshed.core.Foo
 import com.pember.bikeshed.core.ReservationId
 import com.pember.eventsource.DomainEntity
 import com.pember.eventsource.Event
