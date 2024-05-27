@@ -12,6 +12,9 @@ class ReservationQueryService(
     }
 
     fun getHistoricalReservations(): List<Reservation> {
-        return listOf()
+        // todo: make this more efficient and more detailed
+        return reservationsQueryModelRepository.getPastReservationIds().mapNotNull { reservationId ->
+            entityStore.loadCurrentState(Reservation(reservationId))
+        }
     }
 }

@@ -27,7 +27,6 @@ class BikeController(
     @ResponseBody
     @GetMapping("/bikes", consumes = ["application/json"], produces = ["application/json"])
     fun getAvailableBikes(): ResponseEntity<List<String>> {
-        log.info("Hello ${principalAuthService.retrieveCurrentEmployee().name}")
         val availableBikes = bikeAvailabilityRepository.getAvailableBikes()
         return ResponseEntity.ok(availableBikes.map { it.value })
     }
