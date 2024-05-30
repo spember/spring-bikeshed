@@ -4,6 +4,7 @@ import com.pember.bikeshed.auth.PrincipalAuthService
 import com.pember.bikeshed.config.Constants
 import com.pember.bikeshed.core.AddBikesToReservation
 import com.pember.bikeshed.core.BikeId
+import com.pember.bikeshed.core.CompleteReservation
 import com.pember.bikeshed.core.OpenNewReservation
 import com.pember.bikeshed.core.ReservationId
 import com.pember.bikeshed.core.common.EntityStore
@@ -94,5 +95,21 @@ class ReservationController(
                 payload.bikeIds.map {BikeId(it)}
             )
         )
+    }
+
+
+    @PostMapping("/{resId}/complete", consumes = ["application/json"], produces = ["application/json"])
+    fun completeReservation(@PathVariable("resId") resId: String) {
+        val reservation = entityStore.loadCurrentState(Reservation(ReservationId(resId)))
+        if (reservation.active.not()) {
+            throw IllegalArgumentException("Reservation is not active")
+        }
+        reservationService.process(
+            CompleteReservation(
+                authService.retrieveCurrentEmployee().id,
+                reservation.id
+            )
+        )
+
     }
 }

@@ -39,11 +39,12 @@ class BasicBikeControllerTest: BaseIntegrationTest() {
         bikeManagementService.process(RegisterNewBike(
             UserId("stu"), bikeId, BikeColor.RED, "Bike Distributors, Co.")
         )
+        Thread.sleep(200)
 
         val headers = HttpHeaders()
         headers.contentType = APPLICATION_JSON
         val entity = HttpEntity<String>(headers)
-        val response = restTemplate.exchange("http://localhost:$serverPort/bike/${bikeId.value}", GET, entity, String::class.java)
+        val response = restTemplate.exchange("http://localhost:$serverPort/bikes/${bikeId.value}", GET, entity, String::class.java)
         println(response.body)
         assertEquals(200, response.statusCode.value())
 

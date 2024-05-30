@@ -1,5 +1,6 @@
 package com.pember.bikeshed.core.reservations
 
+import com.pember.bikeshed.core.ReservationId
 import com.pember.bikeshed.core.common.EntityStore
 
 class ReservationQueryService(
@@ -7,14 +8,13 @@ class ReservationQueryService(
     private val entityStore: EntityStore<*>
 ) {
 
-    fun getOpenReservations(): List<Reservation> {
-        return listOf()
-    }
+    fun getOpenReservations(): List<Reservation>  =
+        entityStore.loadCurrentState(
+            reservationsQueryModelRepository.getOpenReservationIds().map {Reservation(it)}
+        )
 
-    fun getHistoricalReservations(): List<Reservation> {
-        // todo: make this more efficient and more detailed
-        return reservationsQueryModelRepository.getPastReservationIds().mapNotNull { reservationId ->
-            entityStore.loadCurrentState(Reservation(reservationId))
-        }
-    }
+    fun getHistoricalReservations(): List<Reservation>  =
+        entityStore.loadCurrentState(
+            reservationsQueryModelRepository.getPastReservationIds().map {Reservation(it)}
+        )
 }

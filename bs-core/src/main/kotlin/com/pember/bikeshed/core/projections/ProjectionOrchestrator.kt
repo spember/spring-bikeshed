@@ -24,6 +24,13 @@ import com.pember.eventsource.EventEnvelope
 import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
+/**
+ * A very simple and straightforward example of how to 'orchestrate' events _after_ they're persisted to a Journal.
+ *
+ * In a real application, however, a better approach would be an Observer, where services could register to receive
+ * an event synchronously or asynchronously, depending on the needs of the Projection.
+ *
+ */
 abstract class ProjectionOrchestrator<TX> {
 
     /**
@@ -40,6 +47,9 @@ abstract class ProjectionOrchestrator<TX> {
     @Suppress("UNCHECKED_CAST")
     fun <I: BaseShedId, E: Event> receiveEventForConstraints(transactionalClient: TX, eventEnvelope: EventEnvelope<I, E>) {
 
+        // reminder -> this orchestration of passing events directly to receivers is certainly clunky
+        // A better approach would be to use an Observer and have these underlying receivers register to receive event
+        // envelopes synchronously or asynchronously, depending on the needs of the Projection.
         when(val event = eventEnvelope.event) {
             is UserCreated -> updateUserLookup(transactionalClient, (eventEnvelope as EventEnvelope<UserId, UserCreated>))
             is RoleChanged -> updateUserRole(transactionalClient, (eventEnvelope as EventEnvelope<UserId, RoleChanged>))

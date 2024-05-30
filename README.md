@@ -7,29 +7,20 @@ curious on the basics of how to implement an Event Sourced application.
 
 ## Getting Started and Requirements
 
+* java 21
+* a recent version of docker
 
 ## Running the application
 
+1. Start the database: `docker compose up`. Note that it runs on a separate port from the test db.
+2. Run the migrations: `./gradlew flywayMigrate`
+3. Generate the JOOQ classes: `./gradlew jooqGenerate`
+4. Run the application: `./gradlew bootRun`
+
 #### Tests
 
-#### Running the application
-
-If you just want to run the application, note that it requires an active local postgres instance, which is handled here 
-via docker compose. So:
-
-* `docker compose up` - This will start the db
-* `./gradlew bootRun` - run  the app, which should execute flyway and jooq Generate as part of it.
-
-
-#### Running the Tests
-Due to JOOQ auto generation, you'll want to ensure that you have a running db after a `clean` operation. This is most 
-easily handled by having the 'dev' db running, even if tests are happening. So:
-
-* `docker compose up` - This will start the db
-* `./gradlew flywayMigrate` - Optional: This will run the migrations (this will also occur on app startup, but run this if only using tests)
-* `./gradlew jooqGenerate` - generate jooq objects from the db schema. 
-* `./gradlew test` - Test the application
-
+1. Run the basic app first (or at least up to generating JOOQ classes)
+2. Run the tests: `./gradlew test`
 
 
 ## Callouts - What to Look at!
@@ -52,6 +43,19 @@ sheer number of interfaces can get in your way as your browse the codebase, the 
 this approach is that: the persistence and retrieval of our events is just another implementation detail.
 
 > Events live in the Core of our system because they are core to our business logic.
+
+### General Architecture And Flow
+
+The core of the system are the relation between the `EntityStore`, `Event Repository`, and the `ProjectionOrchestrator`.
+
+As events are created and persisted, they are passed to the `EntityStore`. Within a single transactional boudnary, 1) the 
+events are written to the Journal through the `EventRepository` AND then 2) each event (envelope) is passed to synchronous
+projections through the `ProjectionOrchestrator`. After that transaction completes, the `ProjectionOrchestrator` will 
+hand off the events to asynchronous projections in an eventually consistent manner.
+
+This is meant to be an example, in a real application you'd likely want to do something a bit less clunky than the 
+ProjectionOrchestrator as implemented here, but rather use an Observer pattern where Projection models could register through
+a central dispatcher for event envelopes after they're persisted.
 
 ### Sections to dive into
 
