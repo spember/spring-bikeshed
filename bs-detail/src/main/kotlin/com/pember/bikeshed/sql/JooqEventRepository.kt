@@ -12,6 +12,7 @@ import com.pember.eventsource.EventRepository
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.JSONB
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.stream.Stream
@@ -78,10 +79,17 @@ class JooqEventRepository(
             .map { record -> convert(lookup[record.entityId]!!, record) }.toList()
     }
 
-    override fun <EI : EntityId<String>> loadForIdAndRevision(
+    override fun <EI : EntityId<String>> loadForIdAndToRevision(
         entityId: EI,
         revision: Int
     ): List<EventEnvelope<EI, Event>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun <EI : EntityId<String>?> loadForIdAndToTime(
+        entityId: EI & Any,
+        instant: Instant
+    ): MutableList<EventEnvelope<EI, Event>> {
         TODO("Not yet implemented")
     }
 

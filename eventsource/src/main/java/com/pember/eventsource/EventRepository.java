@@ -1,6 +1,7 @@
 package com.pember.eventsource;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -51,9 +52,24 @@ public interface EventRepository<T> {
      * @param <EI>     The EntityId type
      * @return a List of Event Envelopes
      */
-    <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForIdAndRevision(
+    <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForIdAndToRevision(
             @Nonnull final EI entityId,
             @Nonnull final Integer revision
+    );
+
+
+    /**
+     * In addition to loading events for a given Entity up to a specific revision or seqeuence number, it is also
+     * useful to load events up to a certain point in time.
+     *
+     * @param entityId the Identifier of the DomainEntity we want the events for
+     * @param instant The instant in time to load events up to
+     * @return a List of Event Envelopes
+     * @param <EI>The EntityId type
+     */
+    <EI extends EntityId<T>> List<EventEnvelope<EI, Event>> loadForIdAndToTime(
+            @Nonnull final EI entityId,
+            @Nonnull final Instant instant
     );
 
     /**

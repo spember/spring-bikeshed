@@ -37,7 +37,10 @@ class ReservationService(
     fun process(command: AddBikesToReservation): List<BikeId>{
         // load bikes, load reservation
         val reservation = entityStore.loadCurrentState(Reservation(command.reservationId))
+
         if (!reservation.mayEditBikes()) {
+            // in real life we may want to figure out which bikes are unavailable and alert the user.. or maybe we
+            // could automatically select some bikes that ARE available on their behalf
             log.warn("Attempt to add bikes to a reservation that is not editable")
             return emptyList()
         }
@@ -45,7 +48,7 @@ class ReservationService(
         val bikes = entityStore
             .loadCurrentState(command.bikeIds.map { Bike(it) })
             .filter { it.isAvailableToRent() }
-        // in real life we may want to figure out which bikes are unavailable and alert the user
+
         log.info("Marking ${bikes.size} for reservation out of ${command.bikeIds.size} requested")
 
         val reservationEwe = EntityWithEvents(reservation, command.agent.value, command.occurredAt)
